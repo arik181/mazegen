@@ -18,8 +18,12 @@ class node
 		/*** Destructor ***/
 		~node();
 
-		/*** Draws the node on the screen ***/
+		/*** Draws the node on the screen. Default location is 0,0 ***/
 		void render();
+		void render(int x, int y);
+
+		/*** Tests ***/
+		void test();
 
 	protected:
 

@@ -5,12 +5,15 @@ using namespace std;
 #include "mazegen.h"
 #include "screen.h"
 #include "maze.h"
+#include "node.h"
 
 screen scr;
+node nd;
 
 /*** Main Loop ***/
 int main()
 {
+	nd.test();
 	return 0;
 }
 

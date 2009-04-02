@@ -67,3 +67,33 @@ node::~node()
 	 * ***/
 	knowsstart = NULL;
 }
+
+/*** Draws the node on the screen. Default location is 0,0 ***/
+void node::render()
+{
+	render(0,0);
+}
+
+/*** Draws the node on the screen. Default location is 0,0 ***/
+void node::render(int x, int y)
+{
+	mvaddch(y,x,ACS_ULCORNER);
+	mvaddch(y,x+1,ACS_HLINE);
+	mvaddch(y,x+2,ACS_URCORNER);
+
+	mvaddch(y+1,x,ACS_VLINE);
+	mvaddch(y+1,x+2,ACS_VLINE);
+
+	mvaddch(y+2,x,ACS_LLCORNER);
+	mvaddch(y+2,x+1,ACS_HLINE);
+	mvaddch(y+2,x+2,ACS_LRCORNER);
+}
+
+/*** Test. ***/
+void node::test()
+{
+	render();
+	refresh();
+	napms(5000);
+}
+
