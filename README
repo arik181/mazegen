@@ -1,0 +1,1 @@
+Mazegen is a random maze generator in C++/NCurses, intended as an exploration of inheritance and OO techniques. See design.txt for more details.
