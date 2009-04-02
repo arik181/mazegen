@@ -59,8 +59,8 @@ Objects and responsibilities are as follows:
 	History -
 
 		Class: StackNode
-		Class: HistoryStack Inherits from StackNode
-		Class: History Inherits from HistoryStack
+		Class: Stack Inherits from StackNode
+		Class: History Inherits from Stack
 		
 		History StackNodes will inherit from QNode. They will contain a reference to one QNode, as well as a pointer for stack operation.
 		History may contain multiple references to the same QNode.
