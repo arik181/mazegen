@@ -1,15 +1,43 @@
-#include <cstring>
-#include <ncurses.h>
-
-using namespace std;
-
 #ifndef NODE
 #define NODE
 
+/*** Node States ***/
 #define ISFINISH	0x1
 #define ISSTART		0x2
+#define HASPLAYER	0x4
 
-class node
+class cell
+{
+	public: 
+		/*** Default Constructor ***/
+		cell();
+
+		/*** Destructor ***/
+		~cell();
+
+		/*** Draws the cell on the screen. Default location is 0,0 ***/
+		void render();
+		void render(int x, int y);
+
+		/*** Tests Cell Routines ***/
+		void test();
+
+	protected:
+
+		/*** Location Data ***/
+		int x;
+		int y;
+
+		/*** State Data:
+		 * Tells us whether this node is in fact Finish, or 
+		 * start. One node at each parent/child "layer" will 
+		 * "be" Start and one will "be" Finish for that layer. 
+		 * Also tracks whether the "player" is in the current cell.
+		 * ***/
+		unsigned state;
+};
+
+class node : public cell
 {
 	public:
 		/*** Default Constructor ***/
@@ -18,25 +46,10 @@ class node
 		/*** Destructor ***/
 		~node();
 
-		/*** Draws the node on the screen. Default location is 0,0 ***/
-		void render();
-		void render(int x, int y);
-
-		/*** Tests ***/
+		/*** Tests Node Routines ***/
 		void test();
 
 	protected:
-
-		/*** State Data:
-		 * Tells us whether this node is in fact Finish, or 
-		 * start, among other things. One node at each 
-		 * parent/child "layer" will "be" Start and one will
-		 * "be" Finish for that layer.***/
-		unsigned state;
-
-		/*** Location Data ***/
-		int x;
-		int y;
 
 		/*** Neighboring Nodes. NULL if top layer. ***/
 		node * n;

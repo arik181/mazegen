@@ -80,6 +80,9 @@ Maze Layout:
 		One pointer to a node that "knows" Finish. This will never be NULL. If the node is Finish, it will point to itself, for comparison.
 		One pointer to a node that "knows" Start. This will never be NULL. If the node is Start, it will point to itself, for comparison.
 		A single one-byte state which tracks whether the current node is the finish or start location. If the object is both, we are at the top.
+			The state also tracks whether the "player" is currently in the current node.
+		A "Cell", which will consist of at most four "Walls".
+		
 		
 	The generation will take place as follows: 
 	
@@ -101,7 +104,7 @@ Iteration of Implementation:
 
 	All of these nodes will be created using the same process. The command for generating a Maze will be defined as follows:
 
-		generatemaze(int order);
+		maze::generatemaze(int order);
 
 		Order will be the order of magnitude of the maze, or its underlying number of layers.
 
