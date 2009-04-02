@@ -46,8 +46,11 @@ Objects and responsibilities are as follows:
 
 	Maze -
 	
-		Class: QNode
+		Class: Cell
 
+			A Cell is the area contained within a single node. Various markers may appear within the cell to indicate status to the user.
+
+		Class: Node inherits from Cell
 		Class: QTree Inherits from QNode
 		Class: Maze Inherits from QTree
 

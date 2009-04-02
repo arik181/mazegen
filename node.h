@@ -15,7 +15,7 @@ class cell
 		/*** Destructor ***/
 		~cell();
 
-		/*** Draws the cell on the screen. Default location is 0,0 ***/
+		/*** Draws the cell on the screen. Default location is x,y ***/
 		void render();
 		void render(int x, int y);
 
@@ -45,6 +45,10 @@ class node : public cell
 
 		/*** Destructor ***/
 		~node();
+
+		/*** Draws the cell on the screen. Default location is 0,0 ***/
+		void render();
+		void render(int x, int y);
 
 		/*** Tests Node Routines ***/
 		void test();
