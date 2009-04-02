@@ -48,7 +48,7 @@ class node : public cell
 		~node();
 
 		/*** Generates the node ***/
-		generate(int depth);
+		void generate(int depth);
 
 		/*** Draws the cell on the screen. Default location is 0,0 ***/
 		void render();

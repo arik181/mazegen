@@ -88,8 +88,9 @@ node::~node()
 }
 
 /*** Generates the node ***/
-node::generate(int depth)
+void node::generate(int depth)
 {
+	/*** YOU ARE HERE ***/
 	layer = depth;
 
 	/*** This means that there is only one node, and one active cell. ***/
