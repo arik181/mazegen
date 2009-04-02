@@ -7,6 +7,9 @@ using namespace std;
 /*** Default Constructor ***/
 node::node()
 {
+	/*** Indicates the current layer of the node. ***/
+	layer = 0;
+
 	/*** Neighboring Nodes. NULL if top layer. ***/
 	n = NULL;
 	e = NULL;
@@ -84,6 +87,24 @@ node::~node()
 	knowsstart = NULL;
 }
 
+/*** Generates the node ***/
+node::generate(int depth)
+{
+	layer = depth;
+
+	/*** This means that there is only one node, and one active cell. ***/
+	if (layer == 0);
+	/*** This means that there are five nodes, and four active cells. ***/
+	else if (layer == 1);
+	/*** This means that there are 22 two nodes, and 16 active cells. ***/
+	else if (layer == 2);
+	/*** This means that there are 86 nodes, and 64 active cells. ***/
+	else if (layer == 3);
+	else
+		/*** Currently we only support four layers. ***/
+		perror("Faulty Layer Number");
+}
+
 /*** Draws the node on the screen. Default location is x,y ***/
 void node::render()
 {
@@ -121,25 +142,38 @@ void node::render(int x, int y)
 	if (!e)
 		mvaddch(y+1,x+2,ACS_VLINE);
 
-	/*** Draw corners where applicable ***/
+	/*** Draw corners and connectors where applicable ***/
 	if (!n && !w)
 		mvaddch(y,x,ACS_ULCORNER);
 	else if (!n)
-		mvaddch(y,x,ACS_VLINE);
-	else if (!w)
 		mvaddch(y,x,ACS_HLINE);
+	else if (!w)
+		mvaddch(y,x,ACS_VLINE);
 
 	if (!n && !e)
 		mvaddch(y,x+2,ACS_URCORNER);
 	else if (!n)
-		mvaddch(y,x+2,ACS_VLINE);
-	else if (!e)
 		mvaddch(y,x+2,ACS_HLINE);
+	else if (!e)
+		mvaddch(y,x+2,ACS_VLINE);
 
-	mvaddch(y+2,x,ACS_LLCORNER);
-	mvaddch(y+2,x+2,ACS_LRCORNER);
+	if (!s && !w)
+		mvaddch(y+2,x,ACS_LLCORNER);
+	else if (!s)
+		mvaddch(y+2,x,ACS_HLINE);
+	else if (!w)
+		mvaddch(y+2,x,ACS_VLINE);
 
-	cell::render(x,y);
+	if (!s && !e)
+		mvaddch(y+2,x+2,ACS_LRCORNER);
+	else if (!s)
+		mvaddch(y+2,x+2,ACS_HLINE);
+	else if (!e)
+		mvaddch(y+2,x+2,ACS_VLINE);
+
+	/*** Render the contents of the cell. ***/
+	if (layer == bottom)
+		cell::render(x,y);
 }
 
 /*** Test. ***/
@@ -168,25 +202,36 @@ void node::test()
 	refresh();
 	napms(500);
 
+	n = new node;
 	clear();
 	render(10,5);
 	refresh();
 	napms(500);
 
+	e = new node;
 	clear();
 	render(20,5);
 	refresh();
 	napms(500);
 
+	s = new node;
 	clear();
 	render(30,5);
 	refresh();
 	napms(500);
 
+	w = new node;
 	clear();
 	render(40,5);
 	refresh();
 	napms(500);
+
+	delete n;
+	delete e;
+	delete s;
+	delete w;
+
+	n = e = s = w = NULL;
 
 }
 

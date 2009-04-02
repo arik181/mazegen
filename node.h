@@ -5,6 +5,7 @@
 #define ISFINISH	0x1
 #define ISSTART		0x2
 #define HASPLAYER	0x4
+#define ACTIVE		0x8
 
 class cell
 {
@@ -46,6 +47,9 @@ class node : public cell
 		/*** Destructor ***/
 		~node();
 
+		/*** Generates the node ***/
+		generate(int depth);
+
 		/*** Draws the cell on the screen. Default location is 0,0 ***/
 		void render();
 		void render(int x, int y);
@@ -54,6 +58,9 @@ class node : public cell
 		void test();
 
 	protected:
+
+		/*** Indicates the current layer of the node. ***/
+		int layer;
 
 		/*** Neighboring Nodes. NULL if top layer. ***/
 		node * n;
