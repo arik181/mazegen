@@ -2,8 +2,9 @@
 NAME	= mazegen
 REQ1	= maze
 REQ2	= node
-CREQS	= $(REQ1).cpp $(REQ2).cpp
-HREQS	= $(REQ1).h $(REQ2).h
+REQ3	= screen
+CREQS	= $(REQ1).cpp $(REQ2).cpp $(REQ3).cpp
+HREQS	= $(REQ1).h $(REQ2).h $(REQ3).h
 ALLREQS	= $(NAME).h $(CREQS) $(HREQS)
 ADIR	= arik182
 

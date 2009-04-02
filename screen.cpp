@@ -1,24 +1,9 @@
 #include <ncurses.h>
-#include <time.h>
 using namespace std;
 
-#include "mazegen.h"
 #include "screen.h"
-#include "maze.h"
 
-screen scr;
-
-/*** Main Loop ***/
-int main()
-{
-	/*** Test of main routines. ***/
-	test();
-
-	return 0;
-}
-
-/*** Routines for dealing with ncurses ***/
-void init()
+screen::screen()
 {
 	// Begin ncurses mode
         initscr();
@@ -35,8 +20,7 @@ void init()
 	ESCDELAY = 0;
 }
 
-/*** Routines for dealing with ncurses ***/
-void cleanup()
+screen::~screen()
 {
 	refresh();
 	
@@ -48,14 +32,4 @@ void cleanup()
 
 	// End ncurses mode 
 	endwin();
-}
-
-/*** Test of main routines. ***/
-void test()
-{
-	/*** Test to be sure ncurses was initialized. ***/
-	clear();
-	mvaddstr(0,0,"Hello.");
-	refresh();
-	napms(500);
 }
