@@ -13,7 +13,8 @@ node nd;
 /*** Main Loop ***/
 int main()
 {
-	nd.test();
+	nd.setparent(NULL);
+	nd.gentest();
 	return 0;
 }
 

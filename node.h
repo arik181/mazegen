@@ -7,6 +7,12 @@
 #define HASPLAYER	0x4
 #define ACTIVE		0x8
 
+/*** States describing walls ***/
+#define UPWALL		0x16
+#define DOWNWALL	0x32
+#define LEFTWALL	0x64
+#define RIGHTWALL	0x128
+
 class cell
 {
 	public: 
@@ -48,19 +54,25 @@ class node : public cell
 		~node();
 
 		/*** Generates the node ***/
-		void generate(int depth);
+		void generate(int depth, unsigned mystate);
 
 		/*** Draws the cell on the screen. Default location is 0,0 ***/
 		void render();
 		void render(int x, int y);
 
 		/*** Tests Node Routines ***/
-		void test();
+		void rendertest();
+		void gentest();
+
+		/*** Called by the parent when creating children ***/
+		void setparent(node * theparent);
+		void setneighbors(node * north, node * east,
+				  node * south, node * west);
 
 	protected:
 
 		/*** Indicates the current layer of the node. ***/
-		int layer;
+		int depth;
 
 		/*** Neighboring Nodes. NULL if top layer. ***/
 		node * n;
@@ -90,7 +102,6 @@ class node : public cell
 		 * either be Start, or know someone who knows Start.
 		 * ***/
 		node * knowsstart;
-
 };
 
 #endif // NODE

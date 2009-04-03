@@ -8,7 +8,7 @@ using namespace std;
 node::node()
 {
 	/*** Indicates the current layer of the node. ***/
-	layer = 0;
+	depth = 0;
 
 	/*** Neighboring Nodes. NULL if top layer. ***/
 	n = NULL;
@@ -59,6 +59,9 @@ cell::~cell()
 /*** Destructor ***/
 node::~node()
 {
+	/*** Indicates the current layer of the node. ***/
+	depth = 0;
+
 	/*** Location Data ***/
 	x = 0;
 	y = 0;
@@ -88,22 +91,57 @@ node::~node()
 }
 
 /*** Generates the node ***/
-void node::generate(int depth)
+void node::generate(int factor, unsigned mystate)
 {
-	/*** YOU ARE HERE ***/
-	layer = depth;
+	/*** The calling Parent tells us our depth. ***/
+	depth = factor;
+	state = mystate;
 
-	/*** This means that there is only one node, and one active cell. ***/
-	if (layer == 0);
-	/*** This means that there are five nodes, and four active cells. ***/
-	else if (layer == 1);
-	/*** This means that there are 22 two nodes, and 16 active cells. ***/
-	else if (layer == 2);
-	/*** This means that there are 86 nodes, and 64 active cells. ***/
-	else if (layer == 3);
-	else
-		/*** Currently we only support four layers. ***/
-		perror("Faulty Layer Number");
+	/*** If the depth is one, we only worry about rendering
+	 * the current node. ***/
+	if (depth == 1)
+	{
+		state |= ACTIVE;
+		clear();
+		render();
+		refresh();
+	}
+	/*** Only currently supporting a depth max of 4 ***/
+	else if (depth >= 5)
+	{
+		clear();
+		refresh();
+		perror("Depth too large");
+	}
+	/*** If the depth is between 2 and 4, we do not render the
+	 * current node, but we do create children. ***/
+	else 
+	{
+		node * thisptr;
+		thisptr = this;
+
+		nw = new node;
+		ne = new node;
+		sw = new node;
+		se = new node;
+
+		node * nwptr = nw;
+		node * neptr = ne;
+		node * swptr = sw;
+		node * septr = se;
+
+		nw -> setparent(thisptr);
+		ne -> setparent(thisptr);
+		sw -> setparent(thisptr);
+		se -> setparent(thisptr);
+
+		nw -> setneighbors(NULL, neptr, swptr, NULL);
+		ne -> setneighbors(NULL, NULL, septr, nwptr);
+		sw -> setneighbors(nwptr, septr, NULL, NULL);
+		se -> setneighbors(neptr, NULL, NULL, swptr);
+	}
+
+	napms(500);
 }
 
 /*** Draws the node on the screen. Default location is x,y ***/
@@ -121,64 +159,83 @@ void cell::render()
 /*** Draws the contents of a cell on the screen at a particular location. ***/
 void cell::render(int x, int y)
 {
-	/*** Order here ensures priority ***/
-	if (state & ISSTART)
-		mvaddch(y+1,x+1,'S');
-	if (state & ISFINISH)
-		mvaddch(y+1,x+1,'F');
-	if (state & HASPLAYER)
-		mvaddch(y+1,x+1,ACS_DIAMOND);
+	if (state & ACTIVE)
+	{
+		/*** Order here ensures priority of rendering. ***/
+		if (state & HASPLAYER)
+			mvaddch(y+1,x+1,ACS_DIAMOND);
+		else if (state & ISFINISH)
+			mvaddch(y+1,x+1,'F');
+		else if (state & ISSTART)
+			mvaddch(y+1,x+1,'S');
+	}
 }
 
 /*** Draws the walls of a node on the screen at a particular location.***/
 void node::render(int x, int y)
 {
-	/*** Draw walls where applicable ***/
-	if (!n)
-		mvaddch(y,x+1,ACS_HLINE);
-	if (!s)
-		mvaddch(y+2,x+1,ACS_HLINE);
-	if (!w)
-		mvaddch(y+1,x,ACS_VLINE);
-	if (!e)
-		mvaddch(y+1,x+2,ACS_VLINE);
+	if (state & ACTIVE)
+	{	
+		/*** Draw walls where applicable ***/
+		if (!n)
+			mvaddch(y,x+1,ACS_HLINE);
+		if (!s)
+			mvaddch(y+2,x+1,ACS_HLINE);
+		if (!w)
+			mvaddch(y+1,x,ACS_VLINE);
+		if (!e)
+			mvaddch(y+1,x+2,ACS_VLINE);
 
-	/*** Draw corners and connectors where applicable ***/
-	if (!n && !w)
-		mvaddch(y,x,ACS_ULCORNER);
-	else if (!n)
-		mvaddch(y,x,ACS_HLINE);
-	else if (!w)
-		mvaddch(y,x,ACS_VLINE);
+		/*** Draw corners and connectors where applicable ***/
+		if (!n && !w)
+			mvaddch(y,x,ACS_ULCORNER);
+		else if (!n)
+			mvaddch(y,x,ACS_HLINE);
+		else if (!w)
+			mvaddch(y,x,ACS_VLINE);
 
-	if (!n && !e)
-		mvaddch(y,x+2,ACS_URCORNER);
-	else if (!n)
-		mvaddch(y,x+2,ACS_HLINE);
-	else if (!e)
-		mvaddch(y,x+2,ACS_VLINE);
+		if (!n && !e)
+			mvaddch(y,x+2,ACS_URCORNER);
+		else if (!n)
+			mvaddch(y,x+2,ACS_HLINE);
+		else if (!e)
+			mvaddch(y,x+2,ACS_VLINE);
 
-	if (!s && !w)
-		mvaddch(y+2,x,ACS_LLCORNER);
-	else if (!s)
-		mvaddch(y+2,x,ACS_HLINE);
-	else if (!w)
-		mvaddch(y+2,x,ACS_VLINE);
+		if (!s && !w)
+			mvaddch(y+2,x,ACS_LLCORNER);
+		else if (!s)
+			mvaddch(y+2,x,ACS_HLINE);
+		else if (!w)
+			mvaddch(y+2,x,ACS_VLINE);
 
-	if (!s && !e)
-		mvaddch(y+2,x+2,ACS_LRCORNER);
-	else if (!s)
-		mvaddch(y+2,x+2,ACS_HLINE);
-	else if (!e)
-		mvaddch(y+2,x+2,ACS_VLINE);
+		if (!s && !e)
+			mvaddch(y+2,x+2,ACS_LRCORNER);
+		else if (!s)
+			mvaddch(y+2,x+2,ACS_HLINE);
+		else if (!e)
+			mvaddch(y+2,x+2,ACS_VLINE);
 
-	/*** Render the contents of the cell. ***/
-	if (layer == bottom)
 		cell::render(x,y);
+	}
+}
+
+/*** Called by the parent when creating children ***/
+void node::setparent(node * theparent)
+{
+	parent = theparent;
+}
+
+/*** Called by the parent when creating children ***/
+void node::setneighbors(node * north, node * east, node * south, node * west)
+{
+	n = north;
+	e = east;
+	s = south;
+	w = west;
 }
 
 /*** Test. ***/
-void node::test()
+void node::rendertest()
 {
 	clear();
 	render();
@@ -209,30 +266,60 @@ void node::test()
 	refresh();
 	napms(500);
 
-	e = new node;
+	s = new node;
 	clear();
-	render(20,5);
+	render(10,5);
 	refresh();
 	napms(500);
 
-	s = new node;
+	delete n;
+	delete s;
+
+	n = s = NULL;
+	render(10,5);
+	refresh();
+	napms(500);
+
+	e = new node;
 	clear();
-	render(30,5);
+	render(10,5);
 	refresh();
 	napms(500);
 
 	w = new node;
 	clear();
-	render(40,5);
+	render(10,5);
 	refresh();
 	napms(500);
 
-	delete n;
 	delete e;
-	delete s;
 	delete w;
 
-	n = e = s = w = NULL;
+	e = w = NULL;
+
+	clear();
+	render(10,5);
+	refresh();
+	napms(500);
+
+	clear();
+	render();
+	refresh();
+	napms(500);
 
 }
 
+void node::gentest()
+{
+	unsigned int mystate;
+	mystate = 0x0;
+	mystate |= ( ISFINISH | ISSTART | HASPLAYER |
+			UPWALL | DOWNWALL | LEFTWALL | RIGHTWALL );
+
+	//generate(1,  mystate);
+	generate(2,  mystate);
+	generate(3,  mystate);
+	generate(4,  mystate);
+	//generate(5,  mystate);
+	//generate(10, mystate);
+}
