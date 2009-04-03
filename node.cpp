@@ -106,15 +106,16 @@ void node::generate(int factor, unsigned mystate)
 		render();
 		refresh();
 	}
-	/*** Only currently supporting a depth max of 4 ***/
-	else if (depth >= 5)
+	/*** Only currently supporting a depth max of 1 to 4 ***/
+	else if (depth >= 5 || depth <= 0)
 	{
 		clear();
 		refresh();
-		perror("Depth too large");
+		perror("Depth too great, or depth too shallow");
 	}
 	/*** If the depth is between 2 and 4, we do not render the
-	 * current node, but we do create children. ***/
+	 * current node, but we do create children, and give them 
+	 * an identity. This includes populating all their data. ***/
 	else 
 	{
 		node * thisptr;
@@ -124,6 +125,15 @@ void node::generate(int factor, unsigned mystate)
 		ne = new node;
 		sw = new node;
 		se = new node;
+
+		if (n)
+		{
+			/*** YOU ARE HERE ***/
+			//node * nnptr = n -> getnnptr();
+		}
+		if (e);
+		if (s);
+		if (w);
 
 		node * nwptr = nw;
 		node * neptr = ne;
@@ -139,6 +149,13 @@ void node::generate(int factor, unsigned mystate)
 		ne -> setneighbors(NULL, NULL, septr, nwptr);
 		sw -> setneighbors(nwptr, septr, NULL, NULL);
 		se -> setneighbors(neptr, NULL, NULL, swptr);
+
+		unsigned childstate = state;
+
+		nw -> generate((depth-1), childstate);
+		ne -> generate((depth-1), childstate);
+		sw -> generate((depth-1), childstate);
+		se -> generate((depth-1), childstate);
 	}
 
 	napms(500);
@@ -309,6 +326,7 @@ void node::rendertest()
 
 }
 
+/*** Test. ***/
 void node::gentest()
 {
 	unsigned int mystate;
@@ -316,10 +334,5 @@ void node::gentest()
 	mystate |= ( ISFINISH | ISSTART | HASPLAYER |
 			UPWALL | DOWNWALL | LEFTWALL | RIGHTWALL );
 
-	//generate(1,  mystate);
-	generate(2,  mystate);
 	generate(3,  mystate);
-	generate(4,  mystate);
-	//generate(5,  mystate);
-	//generate(10, mystate);
 }
