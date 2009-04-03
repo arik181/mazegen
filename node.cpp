@@ -97,67 +97,77 @@ void node::generate(int factor, unsigned mystate)
 	depth = factor;
 	state = mystate;
 
-	/*** If the depth is one, we only worry about rendering
-	 * the current node. ***/
-	if (depth == 1)
+	if (depth)
 	{
-		state |= ACTIVE;
-		clear();
-		render();
-		refresh();
-	}
-	/*** Only currently supporting a depth max of 1 to 4 ***/
-	else if (depth >= 5 || depth <= 0)
-	{
-		clear();
-		refresh();
-		perror("Depth too great, or depth too shallow");
-	}
-	/*** If the depth is between 2 and 4, we do not render the
-	 * current node, but we do create children, and give them 
-	 * an identity. This includes populating all their data. ***/
-	else 
-	{
-		node * thisptr;
-		thisptr = this;
-
-		nw = new node;
-		ne = new node;
-		sw = new node;
-		se = new node;
-
-		if (n)
+		/*** If the depth is one, we only worry about rendering
+		 * the current node. ***/
+		if (depth == 1)
 		{
-			/*** YOU ARE HERE ***/
-			//node * nnptr = n -> getnnptr();
+			state |= ACTIVE;
+			clear();
+			render();
+			refresh();
 		}
-		if (e);
-		if (s);
-		if (w);
+		/*** Only currently supporting a depth between 1 and 4 ***/
+		else if (depth >= 5)
+		{
+			clear();
+			refresh();
+			perror("Depth too great, or depth too shallow");
+		}
+		/*** If the depth is between 2 and 4, we do not render the
+		 * current node, but we do create children, and give them 
+		 * an identity. This includes populating all their data. ***/
+		else 
+		{
+			node * thisptr;
+			thisptr = this;
 
-		node * nwptr = nw;
-		node * neptr = ne;
-		node * swptr = sw;
-		node * septr = se;
+			nw = new node;
+			ne = new node;
+			sw = new node;
+			se = new node;
 
-		nw -> setparent(thisptr);
-		ne -> setparent(thisptr);
-		sw -> setparent(thisptr);
-		se -> setparent(thisptr);
+			if (n)
+			{
+				/*** YOU ARE HERE ***/
+				/*** Here is where we will find potential 
+				 * neighbors from other nodes. ***/
+				//node * nnptr = n -> getnnptr();
+			}
+			if (e);
+			if (s);
+			if (w);
 
-		nw -> setneighbors(NULL, neptr, swptr, NULL);
-		ne -> setneighbors(NULL, NULL, septr, nwptr);
-		sw -> setneighbors(nwptr, septr, NULL, NULL);
-		se -> setneighbors(neptr, NULL, NULL, swptr);
+			node * nwptr = nw;
+			node * neptr = ne;
+			node * swptr = sw;
+			node * septr = se;
 
-		unsigned childstate = state;
+			nw -> setparent(thisptr);
+			ne -> setparent(thisptr);
+			sw -> setparent(thisptr);
+			se -> setparent(thisptr);
 
-		nw -> generate((depth-1), childstate);
-		ne -> generate((depth-1), childstate);
-		sw -> generate((depth-1), childstate);
-		se -> generate((depth-1), childstate);
+			nw -> setneighbors(NULL, neptr, swptr, NULL);
+			ne -> setneighbors(NULL, NULL, septr, nwptr);
+			sw -> setneighbors(nwptr, septr, NULL, NULL);
+			se -> setneighbors(neptr, NULL, NULL, swptr);
+
+			/*** YOU ARE HERE ***/
+			/*** Still to do: Give each child an x y position. ***/
+
+			/*** YOU ARE HERE ***/
+			/*** Still to do: Modify the childstate. This will
+			 * include the creation of random walls. ***/
+			unsigned childstate = state;
+
+			nw -> generate((depth-1), childstate);
+			ne -> generate((depth-1), childstate);
+			sw -> generate((depth-1), childstate);
+			se -> generate((depth-1), childstate);
+		}
 	}
-
 	napms(500);
 }
 
