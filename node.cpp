@@ -1,5 +1,8 @@
 #include <ncurses.h>
 #include <cstring>
+#include <cstdlib>
+#include <cmath>
+
 using namespace std;
 
 #include "node.h"
@@ -49,7 +52,7 @@ cell::cell()
 cell::~cell()
 {
 	/*** State Data ***/
-	state = 0x0;
+	state = DEFAULT;
 
 	/*** Location Data ***/
 	x = 0;
@@ -61,6 +64,10 @@ node::~node()
 {
 	/*** Indicates the current layer of the node. ***/
 	depth = 0;
+
+	/*** Size Data ***/
+	width  = 0;
+	height = 0;
 
 	/*** Location Data ***/
 	x = 0;
@@ -91,84 +98,142 @@ node::~node()
 }
 
 /*** Generates the node ***/
-void node::generate(int factor, unsigned mystate)
+void node::generate()
 {
-	/*** The calling Parent tells us our depth. ***/
-	depth = factor;
-	state = mystate;
-
-	if (depth)
+	/*** If the depth is zero, we only worry about rendering
+	 * the current node. ***/
+	if (depth == 0)
 	{
-		/*** If the depth is one, we only worry about rendering
-		 * the current node. ***/
-		if (depth == 1)
-		{
-			state |= ACTIVE;
-			clear();
-			render();
-			refresh();
-		}
-		/*** Only currently supporting a depth between 1 and 4 ***/
-		else if (depth >= 5)
-		{
-			clear();
-			refresh();
-			perror("Depth too great, or depth too shallow");
-		}
-		/*** If the depth is between 2 and 4, we do not render the
-		 * current node, but we do create children, and give them 
-		 * an identity. This includes populating all their data. ***/
-		else 
-		{
-			node * thisptr;
-			thisptr = this;
-
-			nw = new node;
-			ne = new node;
-			sw = new node;
-			se = new node;
-
-			if (n)
-			{
-				/*** YOU ARE HERE ***/
-				/*** Here is where we will find potential 
-				 * neighbors from other nodes. ***/
-				//node * nnptr = n -> getnnptr();
-			}
-			if (e);
-			if (s);
-			if (w);
-
-			node * nwptr = nw;
-			node * neptr = ne;
-			node * swptr = sw;
-			node * septr = se;
-
-			nw -> setparent(thisptr);
-			ne -> setparent(thisptr);
-			sw -> setparent(thisptr);
-			se -> setparent(thisptr);
-
-			nw -> setneighbors(NULL, neptr, swptr, NULL);
-			ne -> setneighbors(NULL, NULL, septr, nwptr);
-			sw -> setneighbors(nwptr, septr, NULL, NULL);
-			se -> setneighbors(neptr, NULL, NULL, swptr);
-
-			/*** YOU ARE HERE ***/
-			/*** Still to do: Give each child an x y position. ***/
-
-			/*** YOU ARE HERE ***/
-			/*** Still to do: Modify the childstate. This will
-			 * include the creation of random walls. ***/
-			unsigned childstate = state;
-
-			nw -> generate((depth-1), childstate);
-			ne -> generate((depth-1), childstate);
-			sw -> generate((depth-1), childstate);
-			se -> generate((depth-1), childstate);
-		}
+		state |= ACTIVE;
+		render();
 	}
-	napms(500);
+	/*** If the depth is 2 or above, we do not render the
+	 * current node, but we do generate children and give them 
+	 * an identity. This includes populating all their data. ***/
+	else 
+	{
+		node * thisptr;
+		thisptr = this;
+
+		/*** Pointers to neighboring nodes are arranged as follows:
+		 * upwest, upeast,
+		 * downwest, downeast,
+		 * leftnorth, leftsouth,
+		 * rightnorth, rightsouth
+		 * ***/
+		node * uwptr = NULL;
+		node * ueptr = NULL;
+		node * dwptr = NULL;
+		node * deptr = NULL;
+		node * lnptr = NULL;
+		node * lsptr = NULL;
+		node * rnptr = NULL;
+		node * rsptr = NULL;
+
+		/*** Pointers to child nodes ***/
+		node * nwptr = NULL;
+		node * neptr = NULL;
+		node * swptr = NULL;
+		node * septr = NULL;
+
+		nw = new node;
+		ne = new node;
+		sw = new node;
+		se = new node;
+
+		if (n)
+		{
+			uwptr = n -> getswptr();
+			ueptr = n -> getseptr();
+		}
+		if (e)
+		{
+			rnptr = e -> getnwptr();
+			rsptr = e -> getswptr();
+		}
+		if (s)
+		{
+			dwptr = s -> getnwptr();
+			deptr = s -> getneptr();
+		}
+		if (w)
+		{
+			lnptr = w -> getneptr();
+			lsptr = w -> getseptr();
+		}
+
+		nwptr = nw;
+		neptr = ne;
+		swptr = sw;
+		septr = se;
+
+		/*** Neighbors are set in the order n,e,s,w ***/
+		nw -> setneighbors(uwptr, neptr, swptr, lnptr);
+		ne -> setneighbors(ueptr, rnptr, septr, nwptr);
+		sw -> setneighbors(nwptr, septr, dwptr, lsptr);
+		se -> setneighbors(neptr, rsptr, deptr, swptr);
+
+		nw -> setparent(thisptr);
+		ne -> setparent(thisptr);
+		sw -> setparent(thisptr);
+		se -> setparent(thisptr);
+
+		/*** Give each child an x,y position. ***/
+		int xmiddle = x+(width/2);
+		int ymiddle = y+(height/2);
+
+		nw -> setposition(x,y);
+		ne -> setposition(xmiddle, y);
+		sw -> setposition(x,ymiddle);
+		se -> setposition(xmiddle,ymiddle);
+
+		/*** YOU ARE HERE ***/
+		/*** Still to do: Modify the childstate. This will
+		 * include the creation of random walls. ***/
+		unsigned childstate = state;
+
+		nw -> setstate(childstate);
+		ne -> setstate(childstate);
+		sw -> setstate(childstate);
+		se -> setstate(childstate);
+
+		nw -> setfactor(depth-1);
+		ne -> setfactor(depth-1);
+		sw -> setfactor(depth-1);
+		se -> setfactor(depth-1);
+
+		nw -> generate();
+		ne -> generate();
+		sw -> generate();
+		se -> generate();
+	}
+}
+
+/*** Called by the parent when creating children ***/
+void node::setfactor(int mydepth)
+{
+	/*** This tells the node what "layer" it exists at. ***/
+	depth = mydepth;
+
+	/*** This tells the node how large it is, literally, (in characters). ***/
+	int n = 0;
+	n = pow(2,mydepth);
+
+	width = height = (n * 2);
+	napms(1);
+}
+
+/*** Called by the parent when creating children ***/
+void node::setposition(int myx, int myy)
+{
+	x = myx;
+	y = myy;
+}
+
+/*** Called by the parent when creating children ***/
+void node::setstate(unsigned mystate)
+{
+	state = mystate;
 }
 
 /*** Draws the node on the screen. Default location is x,y ***/
@@ -203,15 +268,44 @@ void node::render(int x, int y)
 {
 	if (state & ACTIVE)
 	{	
-		/*** Draw walls where applicable ***/
+		/*** Draw walls where applicable. If you discover that 
+		 * you have a neighbor, draw a space in order to clear
+		 * out any existing wall between you. ***/
 		if (!n)
 			mvaddch(y,x+1,ACS_HLINE);
+		else
+		{
+			mvaddch(y,x,' ');
+			mvaddch(y,x+1,' ');
+			mvaddch(y,x+2,' ');
+		}
+
 		if (!s)
 			mvaddch(y+2,x+1,ACS_HLINE);
+		else
+		{
+			mvaddch(y+2,x,' ');
+			mvaddch(y+2,x+1,' ');
+			mvaddch(y+2,x+2,' ');
+		}
+
 		if (!w)
 			mvaddch(y+1,x,ACS_VLINE);
+		else
+		{
+			mvaddch(y,x,' ');
+			mvaddch(y+1,x,' ');
+			mvaddch(y+2,x,' ');
+		}
+
 		if (!e)
 			mvaddch(y+1,x+2,ACS_VLINE);
+		else
+		{
+			mvaddch(y,x+2,' ');
+			mvaddch(y+1,x+2,' ');
+			mvaddch(y+2,x+2,' ');
+		}
 
 		/*** Draw corners and connectors where applicable ***/
 		if (!n && !w)
@@ -243,6 +337,8 @@ void node::render(int x, int y)
 			mvaddch(y+2,x+2,ACS_VLINE);
 
 		cell::render(x,y);
+		refresh();
+		napms(1000);
 	}
 }
 
@@ -260,6 +356,31 @@ void node::setneighbors(node * north, node * east, node * south, node * west)
 	s = south;
 	w = west;
 }
+
+/*** Returns the nw child ***/
+node * node::getnwptr()
+{
+	return nw;
+}
+
+/*** Returns the ne child ***/
+node * node::getneptr()
+{
+	return ne;
+}
+
+/*** Returns the sw child ***/
+node * node::getswptr()
+{
+	return sw;
+}
+
+/*** Returns the se child ***/
+node * node::getseptr()
+{
+	return se;
+}
+
 
 /*** Test. ***/
 void node::rendertest()
@@ -344,5 +465,5 @@ void node::gentest()
 	mystate |= ( ISFINISH | ISSTART | HASPLAYER |
 			UPWALL | DOWNWALL | LEFTWALL | RIGHTWALL );
 
-	generate(3,  mystate);
+	generate();
 }

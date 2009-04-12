@@ -5,7 +5,7 @@ REQ2	= node
 REQ3	= screen
 CREQS	= $(REQ1).cpp $(REQ2).cpp $(REQ3).cpp
 HREQS	= $(REQ1).h $(REQ2).h $(REQ3).h
-ALLREQS	= $(NAME).h $(CREQS) $(HREQS)
+ALLREQS	= $(NAME).cpp $(NAME).h $(CREQS) $(HREQS)
 ADIR	= arik182
 
 # Constant Variables
@@ -22,11 +22,12 @@ DEBUG		= -g
 OBJECT		= -c
 LINK		= -lc -dynamic-linker /lib/ld-linux.so.2
 PROFILE		= -pg
+MATH		= -lm
 
 ### Compile the application ###
 
-$(NAME) : $(NAME).cpp $(NAME).h $(ALLREQS)
-	$(COMPILER) -o $(NAME) $(NAME).cpp $(CREQS) $(NC)
+$(NAME) : $(ALLREQS)
+	$(COMPILER) -o $(NAME) $(NAME).cpp $(CREQS) $(NC) $(MATH)
 
 run : $(NAME)
 	./$(NAME)
@@ -51,8 +52,8 @@ profile : profiletarget
 	gprof --brief --no-graph ./$(NAME) >> report.out
 	vim report.out
 
-debugtarget : $(NAME).cpp $(NAME).h $(ALLREQS)
-	$(COMPILER) $(DEBUG) -o $(NAME) $(NAME).cpp $(CREQS) $(NC)
+debugtarget : $(ALLREQS)
+	$(COMPILER) $(DEBUG) -o $(NAME) $(NAME).cpp $(CREQS) $(NC) $(MATH)
 
 profiletarget : $(NAME).cpp $(NAME).h 
 	$(COMPILER) $(PROFILE) -o $(NAME) $(NAME).cpp 

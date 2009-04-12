@@ -1,5 +1,9 @@
 #include <ncurses.h>
-#include <time.h>
+#include <cstdlib>
+#include <cstdlib>
+#include <cstdio>
+#include <ctime>
+
 using namespace std;
 
 #include "mazegen.h"
@@ -7,21 +11,24 @@ using namespace std;
 #include "maze.h"
 #include "node.h"
 
+/*** Create a new ncurses screen. ***/
 screen scr;
-node nd;
+maze mz;
 
 /*** Main Loop ***/
 int main()
 {
-	nd.setparent(NULL);
-	nd.gentest();
+	/*** Create a new maze. ***/
+	mz.create(scr.getx(), scr.gety());
+
 	return 0;
 }
 
-/*** Test of main routines. ***/
+/*** Test of main routines and objects. ***/
 void test()
 {
-	/*** Test to be sure ncurses was initialized. ***/
+	/*** Test to be sure ncurses was initialized by the 
+	* screen object. ***/
 	clear();
 	mvaddstr(0,0,"Hello.");
 	refresh();

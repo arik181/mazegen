@@ -2,6 +2,7 @@
 #define NODE
 
 /*** Node States ***/
+#define DEFAULT		0x0
 #define ISFINISH	0x1
 #define ISSTART		0x2
 #define HASPLAYER	0x4
@@ -54,7 +55,7 @@ class node : public cell
 		~node();
 
 		/*** Generates the node ***/
-		void generate(int depth, unsigned mystate);
+		void generate();
 
 		/*** Draws the cell on the screen. Default location is 0,0 ***/
 		void render();
@@ -66,13 +67,26 @@ class node : public cell
 
 		/*** Called by the parent when creating children ***/
 		void setparent(node * theparent);
+		void setposition(int myx, int myy);
+		void setstate(unsigned mystate);
+		void setfactor(int mydepth);
 		void setneighbors(node * north, node * east,
 				  node * south, node * west);
+
+		/*** Returns the node's children. Useful for setting neighbors. ***/
+		node * getnwptr();
+		node * getneptr();
+		node * getswptr();
+		node * getseptr();
 
 	protected:
 
 		/*** Indicates the current layer of the node. ***/
 		int depth;
+
+		/*** Size Data ***/
+		int width;
+		int height;
 
 		/*** Neighboring Nodes. NULL if top layer. ***/
 		node * n;

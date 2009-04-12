@@ -1,4 +1,6 @@
 #include <ncurses.h>
+#include <cstdlib>
+
 using namespace std;
 
 #include "screen.h"
@@ -13,11 +15,27 @@ screen::screen()
 	noecho();
 
 	// Turn off the cursor
-	curs_set(0);
+	curs_set(1);
 
 	// Turn off the escape key delay
 	notimeout(stdscr,TRUE);
 	ESCDELAY = 0;
+
+	/*** Get the max x and y coordinates for the screen. ***/
+	screenx = 0;
+	screeny = 0;
+	getmaxyx(stdscr, screeny, screenx);
+	napms(500);
+}
+
+int screen::getx()
+{
+	return screenx;
+}
+
+int screen::gety()
+{
+	return screeny;
 }
 
 screen::~screen()
