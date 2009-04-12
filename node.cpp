@@ -187,28 +187,27 @@ void node::generate()
 		southwall  = 1;
 		westwall   = 2;
 
+		nw -> setneighbors(uwptr, neptr, swptr, lnptr);
+		ne -> setneighbors(ueptr, rnptr, septr, nwptr);
+		sw -> setneighbors(nwptr, septr, dwptr, lsptr);
+		se -> setneighbors(neptr, rsptr, deptr, swptr);
+
 		/*** First we plant the central wall. ***/
 		if (centerwall == 0)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
 			nw -> setneighbors(uwptr, NULL, swptr, lnptr);
 			ne -> setneighbors(ueptr, rnptr, septr, NULL);
-			sw -> setneighbors(nwptr, septr, dwptr, lsptr);
-			se -> setneighbors(neptr, rsptr, deptr, swptr);
 		}
 		else if (centerwall == 1)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
-			nw -> setneighbors(uwptr, neptr, swptr, lnptr);
 			ne -> setneighbors(ueptr, rnptr, NULL, nwptr);
-			sw -> setneighbors(nwptr, septr, dwptr, lsptr);
 			se -> setneighbors(NULL, rsptr, deptr, swptr);
 		}
 		else if (centerwall == 2)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
-			nw -> setneighbors(uwptr, neptr, swptr, lnptr);
-			ne -> setneighbors(ueptr, rnptr, septr, nwptr);
 			sw -> setneighbors(nwptr, NULL, dwptr, lsptr);
 			se -> setneighbors(neptr, rsptr, deptr, NULL);
 		}
@@ -216,9 +215,7 @@ void node::generate()
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
 			nw -> setneighbors(uwptr, neptr, NULL, lnptr);
-			ne -> setneighbors(ueptr, rnptr, septr, nwptr);
 			sw -> setneighbors(NULL, septr, dwptr, lsptr);
-			se -> setneighbors(neptr, rsptr, deptr, swptr);
 		}
 
 		/*** Player and Start/Finish States are inherited randomly from parents. ***/
@@ -420,7 +417,7 @@ void node::render(int x, int y)
 
 		cell::render(x,y);
 		refresh();
-		napms(30);
+		napms(40);
 	}
 }
 

@@ -48,15 +48,13 @@ void maze::create(int scrx, int scry)
 	int factorx = GETFACTOR(scrx);
 	int factory = GETFACTOR(scry);
 
-	/***
 	if (factorx < factory)
 		setfactor(factorx);
 	else
 		setfactor(factory);
-		***/
 
 	/*** For testing only!!! ***/
-	setfactor(4);
+	//setfactor(4);
 	setposition(0,0);
 
 	setstate(HASPLAYER | ISFINISH | ISSTART);
@@ -67,6 +65,14 @@ void maze::create(int scrx, int scry)
 	refresh();
 
 	napms(3000);
+}
+
+
+/*** Move the player in a given direction based on user input. ***/
+/*** YOU ARE HERE ***/
+void maze::move(int direction)
+{
+
 }
 
 /*** Destructor ***/
