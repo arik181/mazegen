@@ -8,12 +8,6 @@
 #define HASPLAYER	0x4
 #define ACTIVE		0x8
 
-/*** States describing walls ***/
-#define UPWALL		0x16
-#define DOWNWALL	0x32
-#define LEFTWALL	0x64
-#define RIGHTWALL	0x128
-
 class cell
 {
 	public: 

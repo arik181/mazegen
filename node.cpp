@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -100,17 +101,10 @@ node::~node()
 /*** Generates the node ***/
 void node::generate()
 {
-	/*** If the depth is zero, we only worry about rendering
-	 * the current node. ***/
-	if (depth == 0)
-	{
-		state |= ACTIVE;
-		render();
-	}
 	/*** If the depth is 2 or above, we do not render the
 	 * current node, but we do generate children and give them 
 	 * an identity. This includes populating all their data. ***/
-	else 
+	if (depth)
 	{
 		node * thisptr;
 		thisptr = this;
@@ -167,11 +161,92 @@ void node::generate()
 		swptr = sw;
 		septr = se;
 
-		/*** Neighbors are set in the order n,e,s,w ***/
-		nw -> setneighbors(uwptr, neptr, swptr, lnptr);
-		ne -> setneighbors(ueptr, rnptr, septr, nwptr);
-		sw -> setneighbors(nwptr, septr, dwptr, lsptr);
-		se -> setneighbors(neptr, rsptr, deptr, swptr);
+		/*** YOU ARE HERE ***/
+		/*** Still to do: Modify the childstate.
+		 * Do you have the player? Do you have the start? finish? ***/
+		unsigned nwstate = DEFAULT;
+		unsigned nestate = DEFAULT;
+		unsigned swstate = DEFAULT;
+		unsigned sestate = DEFAULT;
+
+		/*** This is where we add the random walls into the maze. 
+		 * One random wall goes amongst our children, and one random
+		 * wall for each of our sides. We must confer with our neighbors
+		 * in order to iron out conflicts. If a wall has already been put in,
+		 * we don't worry about it. If we put in a wall, we make certain that
+		 * we aren't blocking any sections off.
+		 * ***/
+		int centerwall	= 0;
+		int northwall	= 0;
+		int eastwall	= 0;
+		int southwall	= 0;
+		int westwall	= 0;
+		centerwall = rand() % 3;
+		northwall  = 1;
+		eastwall   = 2;
+		southwall  = 1;
+		westwall   = 2;
+
+		/*** First we plant the central wall. ***/
+		if (centerwall == 0)
+		{
+			/*** Neighbors are set in the order n,e,s,w ***/
+			nw -> setneighbors(uwptr, NULL, swptr, lnptr);
+			ne -> setneighbors(ueptr, rnptr, septr, NULL);
+			sw -> setneighbors(nwptr, septr, dwptr, lsptr);
+			se -> setneighbors(neptr, rsptr, deptr, swptr);
+		}
+		else if (centerwall == 1)
+		{
+			/*** Neighbors are set in the order n,e,s,w ***/
+			nw -> setneighbors(uwptr, neptr, swptr, lnptr);
+			ne -> setneighbors(ueptr, rnptr, NULL, nwptr);
+			sw -> setneighbors(nwptr, septr, dwptr, lsptr);
+			se -> setneighbors(NULL, rsptr, deptr, swptr);
+		}
+		else if (centerwall == 2)
+		{
+			/*** Neighbors are set in the order n,e,s,w ***/
+			nw -> setneighbors(uwptr, neptr, swptr, lnptr);
+			ne -> setneighbors(ueptr, rnptr, septr, nwptr);
+			sw -> setneighbors(nwptr, NULL, dwptr, lsptr);
+			se -> setneighbors(neptr, rsptr, deptr, NULL);
+		}
+		else if (centerwall == 3)
+		{
+			/*** Neighbors are set in the order n,e,s,w ***/
+			nw -> setneighbors(uwptr, neptr, NULL, lnptr);
+			ne -> setneighbors(ueptr, rnptr, septr, nwptr);
+			sw -> setneighbors(NULL, septr, dwptr, lsptr);
+			se -> setneighbors(neptr, rsptr, deptr, swptr);
+		}
+
+		/*** Player and Start/Finish States are inherited randomly from parents. ***/
+		if ((state & ISSTART) && (centerwall == 0))
+		{
+			nwstate |= (ISSTART | HASPLAYER);
+		}
+		else if ((state & ISSTART) && (centerwall == 1))
+		{
+			nestate |= (ISSTART | HASPLAYER);
+		}
+		else if ((state & ISSTART) && (centerwall == 2))
+		{
+			swstate |= (ISSTART | HASPLAYER);
+		}
+		else if ((state & ISSTART) && (centerwall == 3))
+		{
+			sestate |= (ISSTART | HASPLAYER);
+		}
+
+		if ((state & ISFINISH) && (centerwall == 2))
+			nwstate |= ISFINISH;
+		else if ((state & ISFINISH) && (centerwall == 3))
+			nestate |= ISFINISH;
+		else if ((state & ISFINISH) && (centerwall == 1))
+			swstate |= ISFINISH;
+		else if ((state & ISFINISH) && (centerwall == 0))
+			sestate |= ISFINISH;
 
 		nw -> setparent(thisptr);
 		ne -> setparent(thisptr);
@@ -187,15 +262,10 @@ void node::generate()
 		sw -> setposition(x,ymiddle);
 		se -> setposition(xmiddle,ymiddle);
 
-		/*** YOU ARE HERE ***/
-		/*** Still to do: Modify the childstate. This will
-		 * include the creation of random walls. ***/
-		unsigned childstate = state;
-
-		nw -> setstate(childstate);
-		ne -> setstate(childstate);
-		sw -> setstate(childstate);
-		se -> setstate(childstate);
+		nw -> setstate(nwstate);
+		ne -> setstate(nestate);
+		sw -> setstate(swstate);
+		se -> setstate(sestate);
 
 		nw -> setfactor(depth-1);
 		ne -> setfactor(depth-1);
@@ -220,7 +290,6 @@ void node::setfactor(int mydepth)
 	n = pow(2,mydepth);
 
 	width = height = (n * 2);
-	napms(1);
 }
 
 /*** Called by the parent when creating children ***/
@@ -239,7 +308,20 @@ void node::setstate(unsigned mystate)
 /*** Draws the node on the screen. Default location is x,y ***/
 void node::render()
 {
-	render(x,y);
+	/*** If the depth is zero, we only worry about rendering
+	 * the current node. ***/
+	if (depth == 0)
+	{
+		state |= ACTIVE;
+		render(x,y);
+	}
+	else
+	{
+		nw -> render();
+		ne -> render();
+		sw -> render();
+		se -> render();
+	}
 }
 
 /*** Draws the cell contents on the screen. Default location is x,y ***/
@@ -338,7 +420,7 @@ void node::render(int x, int y)
 
 		cell::render(x,y);
 		refresh();
-		napms(1000);
+		napms(30);
 	}
 }
 
@@ -462,8 +544,7 @@ void node::gentest()
 {
 	unsigned int mystate;
 	mystate = 0x0;
-	mystate |= ( ISFINISH | ISSTART | HASPLAYER |
-			UPWALL | DOWNWALL | LEFTWALL | RIGHTWALL );
+	mystate |= ( ISFINISH | ISSTART | HASPLAYER );
 
 	generate();
 }

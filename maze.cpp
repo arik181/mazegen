@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -41,6 +42,9 @@ void maze::create(int scrx, int scry)
 	 * layer of nodes (factor 0) renders itself.
 	 * ***/
 
+	/*** Seed the random number generator ***/
+	srand(time(NULL));
+
 	int factorx = GETFACTOR(scrx);
 	int factory = GETFACTOR(scry);
 
@@ -49,19 +53,20 @@ void maze::create(int scrx, int scry)
 		setfactor(factorx);
 	else
 		setfactor(factory);
-	***/
+		***/
 
 	/*** For testing only!!! ***/
-	setfactor(3);
+	setfactor(4);
 	setposition(0,0);
 
 	setstate(HASPLAYER | ISFINISH | ISSTART);
 
 	clear();
 	generate();
+	render();
 	refresh();
 
-	napms(2000);
+	napms(3000);
 }
 
 /*** Destructor ***/
