@@ -9,7 +9,7 @@ using namespace std;
 
 /*** Produces the largest factor of two which will
  * produce a maze that fits inside the screen size. ***/
-#define GETFACTOR(y)	(int)floor(sqrt((float)((y-3)/3)))
+#define GETFACTOR(y)	(int)floor(sqrt((float)(y/3)))
 
 /*** Default Constructor ***/
 maze::maze()
@@ -54,17 +54,23 @@ void maze::create(int scrx, int scry)
 		setfactor(factory);
 
 	/*** For testing only!!! ***/
-	//setfactor(4);
+	//setfactor(5);
+	
 	setposition(0,0);
 
 	setstate(HASPLAYER | ISFINISH | ISSTART);
 
 	clear();
+
 	generate();
-	render();
+
+	doorrender();
+	wallrender();
+	connectrender();
+
 	refresh();
 
-	napms(3000);
+	napms(10000);
 }
 
 

@@ -47,6 +47,9 @@ cell::cell()
 	/*** Location Data ***/
 	x = 0;
 	y = 0;
+
+	/*** Timing Delay (for effect ;) ***/
+	delay = 0;
 }
 
 /*** Destructor ***/
@@ -169,24 +172,13 @@ void node::generate()
 		unsigned swstate = DEFAULT;
 		unsigned sestate = DEFAULT;
 
-		/*** This is where we add the random walls into the maze. 
-		 * One random wall goes amongst our children, and one random
-		 * wall for each of our sides. We must confer with our neighbors
-		 * in order to iron out conflicts. If a wall has already been put in,
-		 * we don't worry about it. If we put in a wall, we make certain that
-		 * we aren't blocking any sections off.
+		/*** This is where we add the first set of random walls into the maze. 
+		 * One random wall goes amongst our children. 
 		 * ***/
 		int centerwall	= 0;
-		int northwall	= 0;
-		int eastwall	= 0;
-		int southwall	= 0;
-		int westwall	= 0;
 		centerwall = rand() % 3;
-		northwall  = 1;
-		eastwall   = 2;
-		southwall  = 1;
-		westwall   = 2;
 
+		/*** These are defaults. ***/
 		nw -> setneighbors(uwptr, neptr, swptr, lnptr);
 		ne -> setneighbors(ueptr, rnptr, septr, nwptr);
 		sw -> setneighbors(nwptr, septr, dwptr, lsptr);
@@ -196,26 +188,26 @@ void node::generate()
 		if (centerwall == 0)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
-			nw -> setneighbors(uwptr, NULL, swptr, lnptr);
-			ne -> setneighbors(ueptr, rnptr, septr, NULL);
+			nw -> seteastneighbor(NULL);
+			ne -> setwestneighbor(NULL);
 		}
 		else if (centerwall == 1)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
-			ne -> setneighbors(ueptr, rnptr, NULL, nwptr);
-			se -> setneighbors(NULL, rsptr, deptr, swptr);
+			ne -> setsouthneighbor(NULL);
+			se -> setnorthneighbor(NULL);
 		}
 		else if (centerwall == 2)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
-			sw -> setneighbors(nwptr, NULL, dwptr, lsptr);
-			se -> setneighbors(neptr, rsptr, deptr, NULL);
+			sw -> seteastneighbor(NULL);
+			se -> setwestneighbor(NULL);
 		}
 		else if (centerwall == 3)
 		{
 			/*** Neighbors are set in the order n,e,s,w ***/
-			nw -> setneighbors(uwptr, neptr, NULL, lnptr);
-			sw -> setneighbors(NULL, septr, dwptr, lsptr);
+			nw -> setsouthneighbor(NULL);
+			sw -> setnorthneighbor(NULL);
 		}
 
 		/*** Player and Start/Finish States are inherited randomly from parents. ***/
@@ -303,21 +295,40 @@ void node::setstate(unsigned mystate)
 }
 
 /*** Draws the node on the screen. Default location is x,y ***/
-void node::render()
+void node::wallrender()
 {
 	/*** If the depth is zero, we only worry about rendering
 	 * the current node. ***/
 	if (depth == 0)
 	{
 		state |= ACTIVE;
-		render(x,y);
+		wallrender(x,y);
 	}
 	else
 	{
-		nw -> render();
-		ne -> render();
-		sw -> render();
-		se -> render();
+		nw -> wallrender();
+		ne -> wallrender();
+		sw -> wallrender();
+		se -> wallrender();
+	}
+}
+
+/*** Draws the node on the screen. Default location is x,y ***/
+void node::connectrender()
+{
+	/*** If the depth is zero, we only worry about rendering
+	 * the current node. ***/
+	if (depth == 0)
+	{
+		state |= ACTIVE;
+		connectrender(x,y);
+	}
+	else
+	{
+		nw -> connectrender();
+		ne -> connectrender();
+		sw -> connectrender();
+		se -> connectrender();
 	}
 }
 
@@ -343,7 +354,7 @@ void cell::render(int x, int y)
 }
 
 /*** Draws the walls of a node on the screen at a particular location.***/
-void node::render(int x, int y)
+void node::wallrender(int x, int y)
 {
 	if (state & ACTIVE)
 	{	
@@ -385,6 +396,18 @@ void node::render(int x, int y)
 			mvaddch(y+1,x+2,' ');
 			mvaddch(y+2,x+2,' ');
 		}
+	}
+	refresh();
+	if (delay)
+		napms(delay);
+}
+
+
+/*** Draws the walls of a node on the screen at a particular location.***/
+void node::connectrender(int x, int y)
+{
+	if (state & ACTIVE)
+	{	
 
 		/*** Draw corners and connectors where applicable ***/
 		if (!n && !w)
@@ -417,7 +440,137 @@ void node::render(int x, int y)
 
 		cell::render(x,y);
 		refresh();
-		napms(40);
+		if (delay)
+			napms(delay);
+	}
+}
+
+/*** Draws the doors of a node. ***/
+void node::doorrender()
+{
+	/*** If the depth is zero, we only worry about rendering
+	 * the current node. ***/
+	if (depth == 1)
+	{
+		state |= ACTIVE;
+		doorrender(x,y);
+	}
+	else
+	{
+		nw -> doorrender();
+		ne -> doorrender();
+		sw -> doorrender();
+		se -> doorrender();
+	}
+}
+
+/*** Draws the doors of a node.
+ * One random wall for each of our sides. We must confer with our neighbors
+ * in order to iron out conflicts. If a wall has already been put in,
+ * we don't worry about it. If we put in a wall, we make certain that
+ * we aren't blocking any sections off.
+ * ***/
+void node::doorrender(int x, int y)
+{
+	/*** We now plant a wall on each side, making certain that we don't 
+	 * seal off any part of the maze entirely. ***/
+	int northwall	= 0;
+	int eastwall	= 0;
+	int southwall	= 0;
+	int westwall	= 0;
+	northwall  = rand() % 1;
+	eastwall   = rand() % 1;
+	southwall  = rand() % 1;
+	westwall   = rand() % 1;
+
+	/*** Does a wall already exist in the north? south? east? west? ***/
+	int northwallexists = 0;
+	int eastwallexists = 0;
+	int southwallexists = 0;
+	int westwallexists = 0;
+
+	/*** Does North even exist? ***/
+	if (!n)
+		northwallexists = 1;
+	/*** Half wall? ***/
+	else if (!(n -> sw -> s) || !(n -> se -> s))
+		northwallexists = 1;
+
+	/*** Does East even exist? ***/
+	if (!e)
+		eastwallexists = 1;
+	/*** Half wall? ***/
+	else if (!(e -> sw -> w) || !(e -> nw -> w))
+		eastwallexists = 1;
+
+	/*** Does South even exist? ***/
+	if (!s)
+		southwallexists = 1;
+	/*** Half wall? ***/
+	else if (!(s -> nw -> n) || !(s -> ne -> n))
+		southwallexists = 1;
+
+	/*** Does West even exist? ***/
+	if (!w)
+		westwallexists = 1;
+	/*** Half wall? ***/
+	else if (!(w -> ne -> e) || !(w -> se -> e))
+		westwallexists = 1;
+
+	if (!northwallexists)
+	{
+		if (northwall)
+		{
+			nw -> n = NULL;
+			n -> sw -> s = NULL;
+		}
+		else
+		{
+			ne -> n = NULL;
+			n -> se -> s = NULL;
+		}
+	}
+
+	if (!eastwallexists)
+	{
+		if (eastwall)
+		{
+			ne -> e = NULL;
+			e -> nw -> w = NULL;
+		}
+		else
+		{
+			se -> e = NULL;
+			e -> sw -> w = NULL;
+		}
+	}
+
+	if (!southwallexists)
+	{
+		if (southwall)
+		{
+			sw -> s = NULL;
+			s -> nw -> n = NULL;
+		}
+		else
+		{
+			se -> s = NULL;
+			s -> ne -> n = NULL;
+		}
+	}
+
+	if (!westwallexists)
+	{
+		if (westwall)
+		{
+			nw -> w = NULL;
+			w -> ne -> e = NULL;
+		}
+		else
+		{
+			sw -> w = NULL;
+			w -> se -> e = NULL;
+		}
 	}
 }
 
@@ -433,6 +586,30 @@ void node::setneighbors(node * north, node * east, node * south, node * west)
 	n = north;
 	e = east;
 	s = south;
+	w = west;
+}
+
+/*** Set an individual neighbor ***/
+void node::setnorthneighbor(node * north)
+{
+	n = north;
+}
+
+/*** Set an individual neighbor ***/
+void node::seteastneighbor(node * east)
+{
+	e = east;
+}
+
+/*** Set an individual neighbor ***/
+void node::setsouthneighbor(node * south)
+{
+	s = south;
+}
+
+/*** Set an individual neighbor ***/
+void node::setwestneighbor(node * west)
+{
 	w = west;
 }
 

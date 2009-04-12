@@ -22,12 +22,11 @@ DEBUG		= -g
 OBJECT		= -c
 LINK		= -lc -dynamic-linker /lib/ld-linux.so.2
 PROFILE		= -pg
-MATH		= -lm
 
 ### Compile the application ###
 
 $(NAME) : $(ALLREQS)
-	$(COMPILER) -o $(NAME) $(NAME).cpp $(CREQS) $(NC) $(MATH)
+	$(COMPILER) -o $(NAME) $(NAME).cpp $(CREQS) $(NC)
 
 run : $(NAME)
 	./$(NAME)
@@ -53,7 +52,7 @@ profile : profiletarget
 	vim report.out
 
 debugtarget : $(ALLREQS)
-	$(COMPILER) $(DEBUG) -o $(NAME) $(NAME).cpp $(CREQS) $(NC) $(MATH)
+	$(COMPILER) $(DEBUG) -o $(NAME) $(NAME).cpp $(CREQS) $(NC)
 
 profiletarget : $(NAME).cpp $(NAME).h 
 	$(COMPILER) $(PROFILE) -o $(NAME) $(NAME).cpp 

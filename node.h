@@ -37,6 +37,9 @@ class cell
 		 * Also tracks whether the "player" is in the current cell.
 		 * ***/
 		unsigned state;
+
+		/*** Timing Delay (for effect ;) ***/
+		int delay;
 };
 
 class node : public cell
@@ -51,9 +54,13 @@ class node : public cell
 		/*** Generates the node ***/
 		void generate();
 
-		/*** Draws the cell on the screen. Default location is 0,0 ***/
-		void render();
-		void render(int x, int y);
+		/*** Draws the node on the screen. Default location is 0,0 ***/
+		void wallrender();
+		void wallrender(int x, int y);
+		void connectrender();
+		void connectrender(int x, int y);
+		void doorrender();
+		void doorrender(int x, int y);
 
 		/*** Tests Node Routines ***/
 		void rendertest();
@@ -66,6 +73,12 @@ class node : public cell
 		void setfactor(int mydepth);
 		void setneighbors(node * north, node * east,
 				  node * south, node * west);
+
+		/*** Set individual neighbors ***/
+		void setnorthneighbor(node * north);
+		void seteastneighbor(node * east);
+		void setsouthneighbor(node * south);
+		void setwestneighbor(node * west);
 
 		/*** Returns the node's children. Useful for setting neighbors. ***/
 		node * getnwptr();
