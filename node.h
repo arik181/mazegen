@@ -21,6 +21,16 @@ class cell
 		void render();
 		void render(int x, int y);
 
+		/*** Remove the player from the current cell. ***/
+		void pickupplayer();
+
+		/*** Place the player in the current cell. ***/
+		void placeplayer();
+
+		/*** Get the location of the cell center for rendering the player. ***/
+		int getx();
+		int gety();
+
 		/*** Tests Cell Routines ***/
 		void test();
 
@@ -80,11 +90,23 @@ class node : public cell
 		void setsouthneighbor(node * south);
 		void setwestneighbor(node * west);
 
+		/*** Get individual neighbors ***/
+		node & getnorthneighbor();
+		node & geteastneighbor();
+		node & getsouthneighbor();
+		node & getwestneighbor();
+
 		/*** Returns the node's children. Useful for setting neighbors. ***/
 		node * getnwptr();
 		node * getneptr();
 		node * getswptr();
 		node * getseptr();
+
+		/*** Return the current location of the player. ***/
+		node & locateplayer();
+
+		/*** Report whether the current node contains the player. ***/
+		int hasplayer();
 
 	protected:
 

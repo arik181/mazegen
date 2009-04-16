@@ -349,10 +349,16 @@ void cell::render(int x, int y)
 		/*** Order here ensures priority of rendering. ***/
 		if (state & HASPLAYER)
 			mvaddch(y+1,x+1,ACS_DIAMOND);
-		else if (state & ISFINISH)
-			mvaddch(y+1,x+1,'F');
-		else if (state & ISSTART)
-			mvaddch(y+1,x+1,'S');
+		else
+		{
+			mvaddch(y+1,x+1,' ');
+
+			if (state & ISFINISH)
+				mvaddch(y+1,x+1,'F');
+			else if (state & ISSTART)
+				mvaddch(y+1,x+1,'S');
+
+		}
 	}
 }
 
@@ -616,6 +622,30 @@ void node::setwestneighbor(node * west)
 	w = west;
 }
 
+/*** Set an individual neighbor ***/
+node & node::getnorthneighbor()
+{
+	return * n;
+}
+
+/*** Set an individual neighbor ***/
+node & node::geteastneighbor()
+{
+	return * e;
+}
+
+/*** Set an individual neighbor ***/
+node & node::getsouthneighbor()
+{
+	return * s;
+}
+
+/*** Set an individual neighbor ***/
+node & node::getwestneighbor()
+{
+	return * w;
+}
+
 /*** Returns the nw child ***/
 node * node::getnwptr()
 {
@@ -638,6 +668,17 @@ node * node::getswptr()
 node * node::getseptr()
 {
 	return se;
+}
+
+/*** Get the location of the cell center for rendering the player. ***/
+int cell::getx()
+{
+	return x;
+}
+
+int cell::gety()
+{
+	return y;
 }
 
 
