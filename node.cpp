@@ -276,7 +276,10 @@ void node::setfactor(int mydepth)
 
 	/*** This tells the node how large it is, literally, (in characters). ***/
 	int n = 0;
-	n = pow(2,mydepth);
+	/*** Casting to a double fixes an ambiguity in pow() that breaks compilation
+	 * under Mac OSX. 
+	 * Bug fix courtesy of Greg Haynes. ***/
+	n = pow((double)2,mydepth);
 
 	width = height = (n * 2);
 }

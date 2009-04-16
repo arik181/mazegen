@@ -23,6 +23,9 @@ maze::maze()
  * ***/
 void maze::create(int scrx, int scry)
 {
+	/*** Seed the random number generator ***/
+	srand(time(NULL));
+
 	/*** The following is a bit cryptic, and thus bears explanation.
 	 * We determine the size of the screen by using a macro. That 
 	 * macro determines the number of layers in our maze by calculating
@@ -42,9 +45,6 @@ void maze::create(int scrx, int scry)
 	 * layer of nodes (factor 0) renders itself.
 	 * ***/
 
-	/*** Seed the random number generator ***/
-	srand(time(NULL));
-
 	int factorx = GETFACTOR(scrx);
 	int factory = GETFACTOR(scry);
 
@@ -53,9 +53,6 @@ void maze::create(int scrx, int scry)
 	else
 		setfactor(factory);
 
-	/*** For testing only!!! ***/
-	//setfactor(5);
-	
 	setposition(0,0);
 
 	setstate(HASPLAYER | ISFINISH | ISSTART);
@@ -73,6 +70,52 @@ void maze::create(int scrx, int scry)
 	napms(10000);
 }
 
+/*** Create a new maze (which the root node of a tree) by creating its 
+ * root node, and giving it some information to start from, such as the 
+ * intended depth of the entire tree. Takes a factor of depth as input.
+ * ***/
+void maze::create(int mydepth)
+{
+	/*** Seed the random number generator ***/
+	srand(time(NULL));
+
+	/*** The following is a bit cryptic, and thus bears explanation.
+	 * We determine the size of the screen by using a macro. That 
+	 * macro determines the number of layers in our maze by calculating
+	 * the minimum required space for our maze using the screen size
+	 * (scrx and scry) to give us a factor of 2 for height and width.
+	 *
+	 * Taken another way: 
+	 * A maze of factor 0 will contain one node.
+	 * A maze of factor 1 will contain four nodes, or 2 squared, 
+	 *   with a single parent node.
+	 * A maze of factor 2 will contain sixteen nodes, or four squared,
+	 *   with four parent nodes, and one grandparent node.
+	 * etc, etc...
+	 *
+	 * The factor is passed on to the first layer of nodes, and each layer
+	 * recursively passes on a factor of n-1 to their children. The "bottom" 
+	 * layer of nodes (factor 0) renders itself.
+	 * ***/
+
+	setfactor(mydepth);
+	
+	setposition(0,0);
+
+	setstate(HASPLAYER | ISFINISH | ISSTART);
+
+	clear();
+
+	generate();
+
+	doorrender();
+	wallrender();
+	connectrender();
+
+	refresh();
+
+	napms(10000);
+}
 
 /*** Move the player in a given direction based on user input. ***/
 /*** YOU ARE HERE ***/

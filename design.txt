@@ -107,7 +107,7 @@ Iteration of Implementation:
 
 	All of these nodes will be created using the same process. The command for generating a Maze will be defined as follows:
 
-		maze::generatemaze(int order);
+		maze::create(int order);
 
 		Order will be the order of magnitude of the maze, or its underlying number of layers.
 

@@ -15,7 +15,7 @@ screen::screen()
 	noecho();
 
 	// Turn off the cursor
-	curs_set(1);
+	curs_set(0);
 
 	// Turn off the escape key delay
 	notimeout(stdscr,TRUE);
