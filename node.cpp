@@ -7,6 +7,7 @@
 using namespace std;
 
 #include "node.h"
+#include "maze.h"
 
 /*** Default Constructor ***/
 node::node()
@@ -104,7 +105,7 @@ node::~node()
 /*** Generates the node ***/
 void node::generate()
 {
-	/*** If the depth is 2 or above, we do not render the
+	/*** If the depth is 1 or above, we do not render the
 	 * current node, but we do generate children and give them 
 	 * an identity. This includes populating all their data. ***/
 	if (depth)
@@ -138,35 +139,11 @@ void node::generate()
 		sw = new node;
 		se = new node;
 
-		if (n)
-		{
-			uwptr = n -> getswptr();
-			ueptr = n -> getseptr();
-		}
-		if (e)
-		{
-			rnptr = e -> getnwptr();
-			rsptr = e -> getswptr();
-		}
-		if (s)
-		{
-			dwptr = s -> getnwptr();
-			deptr = s -> getneptr();
-		}
-		if (w)
-		{
-			lnptr = w -> getneptr();
-			lsptr = w -> getseptr();
-		}
-
 		nwptr = nw;
 		neptr = ne;
 		swptr = sw;
 		septr = se;
 
-		/*** YOU ARE HERE ***/
-		/*** Still to do: Modify the childstate.
-		 * Do you have the player? Do you have the start? finish? ***/
 		unsigned nwstate = DEFAULT;
 		unsigned nestate = DEFAULT;
 		unsigned swstate = DEFAULT;
@@ -268,6 +245,67 @@ void node::generate()
 	}
 }
 
+/*** Recursively stitches all nodes together. ***/
+void node::stitch()
+{
+	if (depth)
+	{
+		/*** Pointers to neighboring nodes are arranged as follows:
+		 * upwest, upeast,
+		 * downwest, downeast,
+		 * leftnorth, leftsouth,
+		 * rightnorth, rightsouth
+		 * ***/
+		node * uwptr = NULL;
+		node * ueptr = NULL;
+		node * dwptr = NULL;
+		node * deptr = NULL;
+		node * lnptr = NULL;
+		node * lsptr = NULL;
+		node * rnptr = NULL;
+		node * rsptr = NULL;
+
+		if (n)
+		{
+			uwptr = n -> sw;
+			ueptr = n -> se;
+		}
+		if (e)
+		{
+			rnptr = e -> nw;
+			rsptr = e -> sw;
+		}
+		if (s)
+		{
+			dwptr = s -> nw;
+			deptr = s -> ne;
+		}
+		if (w)
+		{
+			lnptr = w -> ne;
+			lsptr = w -> se;
+		}
+
+		/*** Set the external neighbors ***/
+		nw -> setnorthneighbor(uwptr);
+		nw -> setwestneighbor(lnptr);
+
+		ne -> setnorthneighbor(ueptr);
+		ne -> seteastneighbor(rnptr);
+
+		sw -> setsouthneighbor(dwptr);
+		sw -> setwestneighbor(lsptr);
+
+		se -> seteastneighbor(rsptr);
+		se -> setsouthneighbor(deptr);
+
+		nw -> stitch();
+		ne -> stitch();
+		sw -> stitch();
+		se -> stitch();
+	}
+}
+
 /*** Called by the parent when creating children ***/
 void node::setfactor(int mydepth)
 {
@@ -340,7 +378,7 @@ void cell::render()
 {
 	render(x,y);
 }
-
+ 
 /*** Draws the contents of a cell on the screen at a particular location. ***/
 void cell::render(int x, int y)
 {
@@ -623,27 +661,27 @@ void node::setwestneighbor(node * west)
 }
 
 /*** Set an individual neighbor ***/
-node & node::getnorthneighbor()
+node * node::getnorthneighbor()
 {
-	return * n;
+	return n;
 }
 
 /*** Set an individual neighbor ***/
-node & node::geteastneighbor()
+node * node::geteastneighbor()
 {
-	return * e;
+	return e;
 }
 
 /*** Set an individual neighbor ***/
-node & node::getsouthneighbor()
+node * node::getsouthneighbor()
 {
-	return * s;
+	return s;
 }
 
 /*** Set an individual neighbor ***/
-node & node::getwestneighbor()
+node * node::getwestneighbor()
 {
-	return * w;
+	return w;
 }
 
 /*** Returns the nw child ***/
@@ -679,6 +717,148 @@ int cell::getx()
 int cell::gety()
 {
 	return y;
+}
+
+
+/*** Remove the player from the current cell. ***/
+void cell::pickupplayer()
+{
+	state &= ~(HASPLAYER);
+}
+
+/*** Place the player in the current cell. ***/
+void cell::placeplayer()
+{
+	state |= (HASPLAYER);
+}
+
+/*** Place the player in the current cell. ***/
+void cell::toggleplayer()
+{
+	state ^= (HASPLAYER);
+}
+
+/*** Change the current location of the player by recursively 
+ * traversing the maze tree. This is the only place where 
+ * node::placeplayer gets called. ***/
+void node::pickupplayer(int direction, int maxscry)
+{
+	cell::toggleplayer();
+
+	/*** If we are at the bottom of the tree... ***/
+	if (depth == 0)
+	{
+		if (direction == NORTH)
+		{
+			if (n)
+			{
+				n -> placeplayer();
+				cell::render();
+			}
+			else
+			{
+				cell::toggleplayer();
+				cell::render();
+				parent -> placeplayer();
+				invalidmoveerr(maxscry);
+			}
+		}
+		else if (direction == EAST)
+		{
+			if (e)
+			{
+				e -> placeplayer();
+				cell::render();
+			}
+			else
+			{
+				cell::toggleplayer();
+				cell::render();
+				invalidmoveerr(maxscry);
+				parent -> placeplayer();
+			}
+		}
+		else if (direction == SOUTH)
+		{
+			if (s)
+			{
+				s -> placeplayer();
+				cell::render();
+			}
+			else
+			{
+				cell::toggleplayer();
+				cell::render();
+				invalidmoveerr(maxscry);
+				parent -> placeplayer();
+			}
+		}
+		else if (direction == WEST)
+		{
+			if (w)
+			{
+				w -> placeplayer();
+				cell::render();
+			}
+			else
+			{
+				cell::toggleplayer();
+				cell::render();
+				invalidmoveerr(maxscry);
+				parent -> placeplayer();
+			}
+		}
+	}
+	else
+	{
+		if (nw -> hasplayer())
+			nw -> pickupplayer(direction, maxscry);
+		else if (ne -> hasplayer())
+			ne -> pickupplayer(direction, maxscry);
+		else if (sw -> hasplayer())
+			sw -> pickupplayer(direction, maxscry);
+		else if (se -> hasplayer())
+			se -> pickupplayer(direction, maxscry);
+	}
+}
+
+/*** Give the player a warning about invalid moves ***/
+void node::invalidmoveerr(int myscry)
+{
+	mvaddstr(myscry-1,1,"   Invalid Move   ");
+	refresh();
+	napms(500);
+	mvaddstr(myscry-1,1,"                  ");
+	refresh();
+}
+
+/*** Place the player in a new position. ***/
+/*** After node::pickupplayer crawls down the tree toggling the player
+ * status as it goes, node::placeplayer crawls back up the tree until
+ * it hits the top. ***/
+void node::placeplayer()
+{
+	cell::toggleplayer();
+
+	/*** If we are at the top of the tree... ***/
+	if (parent == 0x0);
+	else
+	{
+		if (depth == 0)
+		{
+			cell::render();
+			refresh();
+		}
+		parent -> placeplayer();
+	}
+}
+
+/*** Report whether the current node contains the player. ***/
+int node::hasplayer()
+{
+	if (state & HASPLAYER)
+		return 1;
+	else return 0;
 }
 
 

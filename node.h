@@ -27,6 +27,9 @@ class cell
 		/*** Place the player in the current cell. ***/
 		void placeplayer();
 
+		/*** Place the player in the current cell. ***/
+		void toggleplayer();
+
 		/*** Get the location of the cell center for rendering the player. ***/
 		int getx();
 		int gety();
@@ -64,6 +67,9 @@ class node : public cell
 		/*** Generates the node ***/
 		void generate();
 
+		/*** Generates the node ***/
+		void stitch();
+
 		/*** Draws the node on the screen. Default location is 0,0 ***/
 		void wallrender();
 		void wallrender(int x, int y);
@@ -91,10 +97,10 @@ class node : public cell
 		void setwestneighbor(node * west);
 
 		/*** Get individual neighbors ***/
-		node & getnorthneighbor();
-		node & geteastneighbor();
-		node & getsouthneighbor();
-		node & getwestneighbor();
+		node * getnorthneighbor();
+		node * geteastneighbor();
+		node * getsouthneighbor();
+		node * getwestneighbor();
 
 		/*** Returns the node's children. Useful for setting neighbors. ***/
 		node * getnwptr();
@@ -102,11 +108,17 @@ class node : public cell
 		node * getswptr();
 		node * getseptr();
 
-		/*** Return the current location of the player. ***/
-		node & locateplayer();
+		/*** Remove the player from the current cell series. ***/
+		void pickupplayer(int direction, int maxscry);
+
+		/*** Place the player in the new cell series. ***/
+		void placeplayer();
 
 		/*** Report whether the current node contains the player. ***/
 		int hasplayer();
+
+		/*** Give the player a warning about invalid moves ***/
+		void invalidmoveerr(int maxscry);
 
 	protected:
 

@@ -58,6 +58,7 @@ void maze::create(int scrx, int scry)
 	setstate(HASPLAYER | ISFINISH | ISSTART);
 
 	generate();
+	stitch();
 
 	myscrx = scrx;
 	myscry = scry;
@@ -98,6 +99,7 @@ void maze::create(int mydepth)
 	setstate(HASPLAYER | ISFINISH | ISSTART);
 
 	generate();
+	stitch();
 }
 
 /*** Duh. ***/
@@ -114,106 +116,13 @@ void maze::render()
 /*** Move the player in a given direction based on user input. ***/
 void maze::move(int direction)
 {
-	/*** Find current location node. ***/
-	node * currentplayerloc =  & locateplayer();
-
-	/*** Find new location node. ***/
-	node * newplayerloc = 0x0;
-
-	if (direction == NORTH)
-	{
-		newplayerloc = & currentplayerloc -> getnorthneighbor();
-	}
-	else if (direction == EAST)
-	{
-		newplayerloc = & currentplayerloc -> geteastneighbor();
-	}
-	else if (direction == SOUTH)
-	{
-		newplayerloc = & currentplayerloc -> getsouthneighbor();
-	}
-	else if (direction == WEST)
-	{
-		newplayerloc = & currentplayerloc -> getwestneighbor();
-	}
-
-	/*** If new location exists... ***/
-	if (newplayerloc)
-	{
-		/*** Set HASPLAYER to off in current. ***/
-		currentplayerloc -> pickupplayer();
-
-		/*** Set HASPLAYER to on in new location. ***/
-		newplayerloc -> placeplayer();
-		
-		currentplayerloc -> render();
-		newplayerloc -> render();
-
-		refresh();
-		napms(500);
-	}
-	/*** Otherwise, simply display an error to the player. ***/
-	else
-	{
-		mvaddstr(myscry-1,1,"  Invalid Move.  ");
-		refresh();
-		napms(500);
-		mvaddstr(myscry-1,1,"                 ");
-		refresh();
-	}
-}
-
-/*** Remove the player from the current cell. ***/
-void cell::pickupplayer()
-{
-	state &= ~(HASPLAYER);
-}
-
-/*** Place the player in the current cell. ***/
-void cell::placeplayer()
-{
-	state |= (HASPLAYER);
-}
-
-/*** Return the current location of the player by recursively 
- * traversing the maze tree. ***/
-node & node::locateplayer()
-{
-	if (depth == 0)
-		return * this;
-	else
-	{
-		if (nw -> hasplayer())
-		{
-			return nw -> locateplayer();
-		}
-		else if (ne -> hasplayer())
-		{
-			return ne -> locateplayer();
-		}
-		else if (sw -> hasplayer())
-		{
-			return sw -> locateplayer();
-		}
-		else if (se -> hasplayer())
-		{
-			return se -> locateplayer();
-		}
-	}
-}
-
-/*** Report whether the current node contains the player. ***/
-int node::hasplayer()
-{
-	if (state & HASPLAYER)
-		return 1;
-	else return 0;
+	node::pickupplayer(direction, myscry);
+	refresh();
 }
 
 /*** YOU ARE HERE ***/
 /*** Destructor ***/
 maze::~maze()
 {
-
 }
 
