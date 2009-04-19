@@ -855,10 +855,10 @@ void node::placeplayer(int maxscry)
 		if (depth == 0)
 		{
 			cell::render();
+			refresh();
 			if (state & ISFINISH)
 			{
 				wingame(maxscry);
-				napms(600);
 				//newgamerequest();
 			}
 
