@@ -23,7 +23,8 @@ int main()
 	mz.create(scr.getx(), scr.gety());
 	mz.render();
 
-	/*** Print a menu. ***/
+	/*** Print directions for the user. ***/
+	printdirn();
 
 	/*** Get user input. ***/
 	getinput();
@@ -52,6 +53,16 @@ void getinput()
 			mz.move(WEST);
 
 	}
+}
+
+/*** Print directions for the user. ***/
+void printdirn()
+{
+	int y = 0;
+	y = scr.gety();
+
+	mvaddstr(y-5,4,"Use arrow keys or WASD to move. Press q at any time to quit.");
+	refresh();
 }
 
 /*** Test of main routines and objects. ***/

@@ -859,10 +859,7 @@ void node::placeplayer(int maxscry)
 			if (state & ISFINISH)
 			{
 				wingame(maxscry);
-				//newgamerequest();
 			}
-
-			refresh();
 		}
 		parent -> placeplayer(maxscry);
 	}
