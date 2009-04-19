@@ -24,10 +24,13 @@ class cell
 		/*** Remove the player from the current cell. ***/
 		void pickupplayer();
 
-		/*** Place the player in the current cell. ***/
+		/*** Place the player in the current cell.
+		 * Handles logic for winning the game. 
+		 * Takes the screen height as an argument. ***/
 		void placeplayer();
 
-		/*** Place the player in the current cell. ***/
+		/*** Place the player in the current cell, or remove if he's
+		 * already there. ***/
 		void toggleplayer();
 
 		/*** Get the location of the cell center for rendering the player. ***/
@@ -112,13 +115,19 @@ class node : public cell
 		void pickupplayer(int direction, int maxscry);
 
 		/*** Place the player in the new cell series. ***/
-		void placeplayer();
+		void placeplayer(int maxscry);
 
 		/*** Report whether the current node contains the player. ***/
 		int hasplayer();
 
+		/*** Report whether the current node contains the "finish line". ***/
+		int isfinish();
+
 		/*** Give the player a warning about invalid moves ***/
 		void invalidmoveerr(int maxscry);
+
+		/*** Give the player a message about winning the game ***/
+		void wingame(int maxscry);
 
 	protected:
 

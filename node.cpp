@@ -521,14 +521,42 @@ void node::doorrender(int x, int y)
 {
 	/*** We now plant a wall on each side, making certain that we don't 
 	 * seal off any part of the maze entirely. ***/
+	int wallseed	= 0;
+	wallseed  = rand() % 3;
+
 	int northwall	= 0;
 	int eastwall	= 0;
 	int southwall	= 0;
 	int westwall	= 0;
-	northwall  = rand() % 1;
-	eastwall   = rand() % 1;
-	southwall  = rand() % 1;
-	westwall   = rand() % 1;
+
+	if (wallseed == 0)
+	{
+		northwall  = 0;
+		eastwall   = 2;
+		southwall  = 3;
+		westwall   = 1;
+	}
+	else if (wallseed == 1)
+	{
+		northwall  = 3;
+		eastwall   = 0;
+		southwall  = 1;
+		westwall   = 2;
+	}
+	else if (wallseed == 2)
+	{
+		northwall  = 2;
+		eastwall   = 1;
+		southwall  = 0;
+		westwall   = 3;
+	}
+	else if (wallseed == 3)
+	{
+		northwall  = 1;
+		eastwall   = 3;
+		southwall  = 2;
+		westwall   = 0;
+	}
 
 	/*** Does a wall already exist in the north? south? east? west? ***/
 	int northwallexists = 0;
@@ -748,65 +776,36 @@ void node::pickupplayer(int direction, int maxscry)
 	/*** If we are at the bottom of the tree... ***/
 	if (depth == 0)
 	{
+		node * newnode = 0x0;
+
 		if (direction == NORTH)
 		{
-			if (n)
-			{
-				n -> placeplayer();
-				cell::render();
-			}
-			else
-			{
-				cell::toggleplayer();
-				cell::render();
-				parent -> placeplayer();
-				invalidmoveerr(maxscry);
-			}
+			newnode = n;
 		}
 		else if (direction == EAST)
 		{
-			if (e)
-			{
-				e -> placeplayer();
-				cell::render();
-			}
-			else
-			{
-				cell::toggleplayer();
-				cell::render();
-				invalidmoveerr(maxscry);
-				parent -> placeplayer();
-			}
+			newnode = e;
 		}
 		else if (direction == SOUTH)
 		{
-			if (s)
-			{
-				s -> placeplayer();
-				cell::render();
-			}
-			else
-			{
-				cell::toggleplayer();
-				cell::render();
-				invalidmoveerr(maxscry);
-				parent -> placeplayer();
-			}
+			newnode = s;
 		}
 		else if (direction == WEST)
 		{
-			if (w)
-			{
-				w -> placeplayer();
-				cell::render();
-			}
-			else
-			{
-				cell::toggleplayer();
-				cell::render();
-				invalidmoveerr(maxscry);
-				parent -> placeplayer();
-			}
+			newnode = w;
+		}
+
+		if (newnode)
+		{
+			newnode -> placeplayer(maxscry);
+			cell::render();
+		}
+		else
+		{
+			cell::toggleplayer();
+			cell::render();
+			parent -> placeplayer(maxscry);
+			invalidmoveerr(maxscry);
 		}
 	}
 	else
@@ -825,10 +824,19 @@ void node::pickupplayer(int direction, int maxscry)
 /*** Give the player a warning about invalid moves ***/
 void node::invalidmoveerr(int myscry)
 {
-	mvaddstr(myscry-1,1,"   Invalid Move   ");
+	mvaddstr(myscry-2,1,"   Invalid Move   ");
 	refresh();
-	napms(500);
-	mvaddstr(myscry-1,1,"                  ");
+	napms(50);
+	mvaddstr(myscry-2,1,"                                              ");
+	mvaddstr(myscry-1,1,"                                              ");
+	refresh();
+}
+
+/*** Give the player a warning about invalid moves ***/
+void node::wingame(int myscry)
+{
+	mvaddstr(myscry-2,1,"   Congratulations, You've solved the maze!");
+	mvaddstr(myscry-1,1,"       Have a cookie. You've earned it.");
 	refresh();
 }
 
@@ -836,7 +844,7 @@ void node::invalidmoveerr(int myscry)
 /*** After node::pickupplayer crawls down the tree toggling the player
  * status as it goes, node::placeplayer crawls back up the tree until
  * it hits the top. ***/
-void node::placeplayer()
+void node::placeplayer(int maxscry)
 {
 	cell::toggleplayer();
 
@@ -847,9 +855,16 @@ void node::placeplayer()
 		if (depth == 0)
 		{
 			cell::render();
+			if (state & ISFINISH)
+			{
+				wingame(maxscry);
+				napms(600);
+				//newgamerequest();
+			}
+
 			refresh();
 		}
-		parent -> placeplayer();
+		parent -> placeplayer(maxscry);
 	}
 }
 
@@ -861,6 +876,13 @@ int node::hasplayer()
 	else return 0;
 }
 
+/*** Report whether the current node contains the "finish line". ***/
+int node::isfinish()
+{
+	if (state & ISFINISH)
+		return 1;
+	else return 0;
+}
 
 /*** Test. ***/
 void node::rendertest()
