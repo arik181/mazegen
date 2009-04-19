@@ -1,15 +1,4 @@
-In program #1 I thought it might be fun to develop a text based game. After teaching computer graphics last term, I found that many students were interested with the notion of creating game programs. Although we don’t have time to implement a full computer graphics program – we will develop a short program that will allow a piece to move from start through some maze that is developed as part of your data structure. As this should be an object oriented problem, think about what a game piece is, what movements it should be allowed to do, how do you backup or start over, and how do you define winning? Is there a point system? Come up with a set of questions and design the solution for the game of your choice. Then develop a set of classes that work together to implement that solution. Think of it as just a beginning. Your goal will be to make this as general purpose as possible. 
-
-With this assignment, we want to alter our concept of how trees can be used and implement a tree similar to R-Trees. These are typically used for spatial data where information is stored by “area”. They are useful for computer-assisted design, geographical data and VLSI design. The idea is that we want to create the tree, search and delete data by its domain or spatial area. For example, a game program might use an R-Tree to find out where a piece can move to based on its current location. Although it would be nice to implement an R-Tree, that will be too much for a 2 week project. So, we will implement a simplified version as described below.
-For This Program
-
-For our tree (KF-Tree), let’s make the following rules:
-
-The data in each node is the current position of your game piece.
-
-   1. At each node there are at most 4 children representing 4 quadrants from the current position and a description of that location. (all of them can be NULL if the game piece has made its way into a back alley and has no way out!)
-   2. Each child node contains its position along with the at most 4 directions or quadrants that the game piece can move to.
-
+The purpose of this document is to set out the guidelines and planning for the project, and to set out the general direction in which I intend to proceed with its implementation.
 
 Analysis: 
 
@@ -38,21 +27,21 @@ My questions are as follows:
 
 		The maze will take responsibility for creating itself (populating its own data structure from a compile-time defined struct).
 
-	Should the maze be dynamic, or static?
-
-		There will be a single maze 'layout', contained within a struct. The maze will be static, in order to reduce effort. (Proof of Concept)
-
 Objects and responsibilities are as follows:
 
 	Maze -
 	
 		Class: Cell
 
-			A Cell is the area contained within a single node. Various markers may appear within the cell to indicate status to the user.
+			A Cell is the area contained within a single node. Various state markers may appear within the cell to indicate status to the user.
 
 		Class: Node inherits from Cell
-		Class: QTree Inherits from QNode
-		Class: Maze Inherits from QTree
+
+			A Node is a Cell which is aware of its neighbors, its parents and its children.
+			
+		Class: Maze Inherits from Node
+
+			The maze is a special case of Node. It has no parent, and is aware of all children. Maze is the root node of the tree.
 
 		Maze will move the piece. 
 		Maze will keep a pointer to the current player position, the Start and Finish positions.
@@ -65,8 +54,8 @@ Objects and responsibilities are as follows:
 		Class: Stack Inherits from StackNode
 		Class: History Inherits from Stack
 		
-		History StackNodes will inherit from QNode. They will contain a reference to one QNode, as well as a pointer for stack operation.
-		History may contain multiple references to the same QNode.
+		History StackNodes will inherit from Node. They will contain a reference to one Node, as well as a pointer for stack operation.
+		History may contain multiple references to the same Node.
 
 Maze Layout:
 
