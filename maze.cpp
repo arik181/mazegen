@@ -93,7 +93,6 @@ void maze::render()
 	refresh();
 }
 
-/*** YOU ARE HERE ***/
 /*** Move the player in a given direction based on user input. ***/
 void maze::move(int direction)
 {
@@ -101,8 +100,9 @@ void maze::move(int direction)
 	refresh();
 }
 
-/*** YOU ARE HERE ***/
 /*** Destructor ***/
+/*** Unnecessary, since the inherited cell and node destructors do
+ * the memory breakdown. ***/
 maze::~maze()
 {
 }

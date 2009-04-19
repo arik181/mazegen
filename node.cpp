@@ -87,6 +87,16 @@ node::~node()
 	/*** Parent Node. NULL if top layer. ***/
 	parent = NULL;
 
+	/*** Destroy all children. ***/
+	if (nw)
+		delete nw;
+	if (ne)
+		delete ne;
+	if (sw)
+		delete sw;
+	if (se)
+		delete se;
+
 	/*** Child Nodes. NULL if bottom layer. ***/
 	nw = NULL;
 	ne = NULL;
