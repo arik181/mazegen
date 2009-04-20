@@ -6,7 +6,6 @@ REQ3	= screen
 CREQS	= $(REQ1).cpp $(REQ2).cpp $(REQ3).cpp 
 HREQS	= $(REQ1).h $(REQ2).h $(REQ3).h
 ALLREQS	= $(NAME).cpp $(NAME).h $(CREQS) $(HREQS)
-ADIR	= arik182
 
 # Constant Variables
 COMPILER	= g++ -Wall
@@ -54,8 +53,8 @@ profile : profiletarget
 debugtarget : $(ALLREQS)
 	$(COMPILER) $(DEBUG) -o $(NAME) $(NAME).cpp $(CREQS) $(NC)
 
-profiletarget : $(NAME).cpp $(NAME).h 
-	$(COMPILER) $(PROFILE) -o $(NAME) $(NAME).cpp 
+profiletarget : $(ALLREQS)
+	$(COMPILER) $(PROFILE) -o $(NAME) $(NAME).cpp $(CREQS) $(NC)
 
 clean : $(NAME)
 	rm $(NAME) && rm *.o 
@@ -63,25 +62,33 @@ clean : $(NAME)
 dump: $(NAME)
 	objdump -d $(NAME) > objcode
 
+### Send out homework ###
+
 tex : 	
 	latex $(NAME).tex
 	dvipdfm $(NAME).dvi
 
-homework: $(NAME) profile
+TARDIR		= arik182
+ADDRESS1 	= arik182@gmail.com
+ADDRESS2 	= karlafgr@cs.pdx.edu
+SUBJECT		= [CS202 Submission]
+ASSIGNMENT	= 'CS202 Assignment 1'
+
+homework: $(ALLREQS) Makefile 
 	echo "Cleaning up..."
 	rm -rf $(NAME)
 	rm -rf *~
-	rm -rf $(ADIR)
+	rm -rf $(TARDIR)
 	echo "Creating directory..."
-	mkdir $(ADIR)
+	mkdir $(TARDIR)
 	echo "Copying targets..."
-	cp Makefile $(NAME).cpp $(NAME).h report.out typescript.out $(ADIR)/
-	tar cvf $(ADIR).tar $(ADIR)
+	cp Makefile design.txt debug.txt $(TARDIR)/
+	echo "Creating headers..."
+	sh -c "./fileheader.sh $(TARDIR) $(ASSIGNMENT)"
+	echo "Creating archive..."
+	tar czvf $(TARDIR).tar $(TARDIR)
+	echo "Sending email..."
+	mpack -a -s '$(SUBJECT)' $(FILE) $(ADDRESS1)
+	#mpack -a -s '$(SUBJECT)' $(FILE) $(ADDRESS2)
 	echo "Done."
-
-test : $(NAME) tests
-	script -f -c 'cat ./tests | ./$(NAME)'
-	cat typescript | col -b > readablescript
-	
-
 

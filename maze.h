@@ -38,3 +38,5 @@ class maze : public node
 };
 
 #endif // MAZE
+/*** maze.h ***/
+/*** maze.h ***/

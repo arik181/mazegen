@@ -4,19 +4,12 @@ Analysis:
 
 Nouns of note:
 
-	game
-	piece
-	maze
-	data structure
+	game, piece, maze
 
 Verbs of note:
 
-	movement
-	back up
-	start over
-	win
+	movement, back up, start over, win
 	
-
 My questions are as follows: 
 
 	What is the core of the game, if it is as general purpose as possible?
@@ -101,4 +94,28 @@ Iteration of Implementation:
 		Order will be the order of magnitude of the maze, or its underlying number of layers.
 
 	History will be implemented as time allows.
+
+Postmortem Comments: 
+
+The mazegen design is really not a good design. It creates a maze at random based on the size of the existing terminal or tty screen. The maze algorithm itself is weak. Mazes are solvable in no time flat. The underlying design consists of a linear inheritance tree: Maze inherits from node, node inherits from cell. Very little inheritance is actually taking place. As the implementation process moved forward it became apparent that the absence of certain objects in the design (a player object, wall objects etc...) was a hindrance to the overall structure of the program. I felt as though I were moving down a narrower and narrower path in the design itself, and certain aspects of the design were forcing my hand in other places. The node class does the lion's share of the work in this design, but prevents other classes from seeing what they need to do their jobs.
+
+The idea of using recursion to generate a random maze was interesting to me, but I think that if I had to do it again, I might use a different strategy.
+
+Good things:
+
+This is the first time that I've tried allowing tests to drive the implementation of the program. I write the test routines first, and then add in functionality. This works pretty well, but I think it's going to take some practice before I'm really writing good tests, and I find that I'm not doing this 100% of the time as I should. 
+
+The recursive nature of the entire program is interesting in many ways. It has its good points and its bad points. I believe that it makes the design difficult to understand from a maintainer's perspective, but it makes changing the nature of the entire maze trivial. It also makes the maze extremely efficient during runtime.Most of the inneficiency is front-loaded into the creation process, so creation of the maze is slow, but working with it is extremely fast. This design also makes it easy to scale the maze to any given terminal or system automatically.
+
+Bad things: 
+
+The overall design of the program is something that I'm not satisfied with. 
+
+I've been in a very C mode for the last few months and it really shows here. Pointers are being passed, but not objects. I'll work on this for the next program. To make things worse, I actually switched my style up a bit halfway through, which made things very difficult to work with. Still, I'm glad I did make the switch.
+
+Objects are also not communicating with each other very well. This is a problem that I've had since CS162. I'm perfectly willing to write objects that have a general set of responsibilities and stick to a specific task domain, but there's not a lot of communication between the objects and that communication feels "forced" at the level of main(). I need to think about this some more. Designing for communication is a problem for me.
+
+Objects are not very reusable. Not enough generic control and customizability is given from the outside.
+
+Also, I never got around to implementing history, although it would be relatively simple to do in this configuration.
 

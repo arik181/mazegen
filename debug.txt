@@ -1,0 +1,10 @@
+gdb is probably my favorite programming tool. Several years ago I was fortunate enough to read "The Bug", by the software engineer Ellen Ullman. "The Bug" is a suspense/horror tale in which a man goes slowly insane while trying to find a particularly elusive bug, dubbed "The Jester" by his co-workers. At the end of the book, Ullman gives a very brief introduction to gdb, in which she extolls the virtues of methodical, structured analysis of code during the debugging process. This introduction gave me my first real glimpse into the world of programming, and has heavily influenced my debugging style ever since. I have many weak points as a programmer (Object Oriented Methods are among them), but debugging is not one of them. I have not used a print statement since CS161, instead relying solely on the information offered by gdb and occasionally ddd. There are very few cases in which these tools are not up to the task of finding a problem. (One rare example I've encountered was an error in a Makefile)
+
+My general method when a bug occurs is as follows:
+
+	if (segfault) 
+		Use the 'where' or 'bt' command in gdb, followed by the 'frame' command, the 'list' command. Sometimes, if the problem is not immediately evident, run the program again, setting a breakpoint just before the location of the error.
+	else if (runtime error)
+		Analyze exact nature of problem if possible. Determine the probable location of the error, and break just prior. Examine state data, local variables and anything that has been passed in to the function using the 'p' or 'x' series of commands. Occasionally run a test command using the 'p' command to illustrate what a particular command might accomplish.
+
+In general, these steps lead to the location of the problem. The worst bugs are those which are ambiguous in some way, or cases where I may guess incorrectly about the nature of the problem, but these are pretty rare.

@@ -14,3 +14,5 @@ void printdirn();
 void test();
 
 #endif // MAIN
+/*** mazegen.h ***/
+/*** mazegen.h ***/
